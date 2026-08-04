@@ -1,0 +1,489 @@
+        :root {
+            --aliada-violeta: #7B1FA2;
+            --aliada-violeta-dark: #4A0E63;
+            --aliada-fucsia: #D81B9C;
+            --aliada-fucsia-dark: #A50F78;
+            --aliada-rosa: #FF4FB8;
+            --aliada-rosa-soft: #FFE4F3;
+
+            --aliada-bg: #FFF5FB;
+            --aliada-card: rgba(255, 255, 255, .94);
+            --aliada-text: #2B1237;
+            --aliada-muted: #80658D;
+            --aliada-border: rgba(216, 27, 156, .16);
+
+            --aliada-gradient: linear-gradient(135deg, #FF4FB8 0%, #D81B9C 48%, #7B1FA2 100%);
+            --aliada-gradient-dark: linear-gradient(145deg, #4A0E63 0%, #7B1FA2 48%, #D81B9C 100%);
+            --aliada-shadow: 0 18px 48px rgba(123, 31, 162, .22);
+
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(circle at 15% 0%, rgba(255, 79, 184, .30), transparent 28%),
+                radial-gradient(circle at 95% 18%, rgba(123, 31, 162, .22), transparent 32%),
+                linear-gradient(180deg, #FFF5FB 0%, #FDF2FF 48%, #FFFFFF 100%);
+            color: var(--aliada-text);
+            overflow: hidden;
+        }
+
+        body {
+            min-height: 100dvh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .app-chat-mobile {
+            width: 100%;
+            height: 100dvh;
+            min-height: 100dvh;
+            max-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bottom));
+        }
+
+        .mobile-shell {
+            width: 100%;
+            max-width: 460px;
+            height: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .topbar-mobile {
+            flex: 0 0 auto;
+            position: relative;
+            z-index: 20;
+            margin-bottom: 10px;
+        }
+
+        .topbar-mobile-inner {
+            width: 100%;
+            padding: 12px;
+            border-radius: 26px;
+            background:
+                radial-gradient(circle at 10% 8%, rgba(255, 255, 255, .26), transparent 30%),
+                radial-gradient(circle at 100% 100%, rgba(255, 79, 184, .32), transparent 34%),
+                var(--aliada-gradient);
+            border: 1px solid rgba(255, 255, 255, .22);
+            box-shadow: var(--aliada-shadow);
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .topbar-mobile-inner::after {
+            content: "";
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            right: -70px;
+            top: -74px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .17);
+        }
+
+        .brand-mobile {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-mobile-logo {
+            width: 64px;
+            height: 64px;
+            min-width: 64px;
+            border-radius: 21px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            box-shadow: 0 14px 30px rgba(74, 14, 99, .24);
+        }
+
+        .brand-mobile-logo img {
+            width: 100%;
+            max-width: 54px;
+            max-height: 54px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .brand-mobile-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .brand-mobile-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .22);
+            color: #fff;
+            font-size: 9.5px;
+            font-weight: 900;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .brand-mobile-eyebrow::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            border-radius: 999px;
+            background: #FFD6EF;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, .12);
+        }
+
+        .brand-mobile-title {
+            margin: 0;
+            color: #ffffff;
+            font-size: clamp(19px, 6vw, 25px);
+            line-height: 1.04;
+            font-weight: 950;
+            letter-spacing: -1px;
+        }
+
+        .brand-mobile-title span {
+            color: #FFD6EF;
+        }
+
+        .brand-mobile-subtitle {
+            margin: 6px 0 0;
+            color: rgba(255, 255, 255, .84);
+            font-size: 11.7px;
+            line-height: 1.35;
+            font-weight: 600;
+        }
+
+        .topbar-mobile-actions {
+            position: relative;
+            z-index: 2;
+            margin-top: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-mobile-top {
+            min-height: 44px;
+            border: 0;
+            outline: none;
+            border-radius: 16px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .22);
+            color: #ffffff;
+            font-size: 12.5px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(74, 14, 99, .14);
+        }
+
+        .btn-mobile-top.white {
+            background: #ffffff;
+            color: var(--aliada-fucsia-dark);
+        }
+
+        .btn-mobile-top i {
+            font-size: 13px;
+        }
+
+        .btn-mobile-top:active {
+            transform: scale(.98);
+        }
+
+        .info-strip {
+            flex: 0 0 auto;
+            margin-bottom: 10px;
+            padding: 11px 13px;
+            border-radius: 20px;
+            background: var(--aliada-card);
+            border: 1px solid var(--aliada-border);
+            box-shadow: 0 10px 24px rgba(123, 31, 162, .10);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-icon {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, rgba(255, 79, 184, .16), rgba(123, 31, 162, .12));
+            color: var(--aliada-fucsia);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .info-copy {
+            min-width: 0;
+        }
+
+        .info-copy strong {
+            display: block;
+            color: var(--aliada-text);
+            font-size: 13px;
+            font-weight: 950;
+            line-height: 1.15;
+        }
+
+        .info-copy span {
+            display: block;
+            color: var(--aliada-muted);
+            font-size: 11.2px;
+            line-height: 1.35;
+            margin-top: 3px;
+        }
+
+        .chat-panel {
+            flex: 1 1 auto;
+            min-height: 0;
+            border-radius: 28px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid rgba(216, 27, 156, .16);
+            box-shadow: 0 18px 42px rgba(123, 31, 162, .16);
+            position: relative;
+        }
+
+        .chat-frame {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        #n8n-chat {
+            width: 100%;
+            height: 100%;
+        }
+
+        .footer-mobile {
+            flex: 0 0 auto;
+            padding: 8px 4px 0;
+            text-align: center;
+        }
+
+        .footer-mobile p {
+            margin: 0;
+            color: #8B6A94;
+            font-size: 10.5px;
+            line-height: 1.35;
+        }
+
+        .footer-mobile strong {
+            color: var(--aliada-fucsia-dark);
+            font-weight: 900;
+        }
+
+        .footer-mobile a {
+            color: var(--aliada-fucsia-dark);
+            font-weight: 900;
+            text-decoration: none;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERSONALIZACIÓN CHAT N8N - ALIADA UTS
+        |--------------------------------------------------------------------------
+        */
+        :root {
+            --chat--color-primary: #D81B9C;
+            --chat--color-primary-shade-50: #C2188B;
+            --chat--color-primary-shade-100: #A50F78;
+            --chat--color-secondary: #7B1FA2;
+            --chat--color-secondary-shade-50: #4A0E63;
+            --chat--color-white: #ffffff;
+            --chat--color-light: #FFF5FB;
+            --chat--color-light-shade-50: #FCE7F3;
+            --chat--color-light-shade-100: #F3E8FF;
+            --chat--color-medium: #D9BEE4;
+            --chat--color-dark: #2B1237;
+            --chat--color-disabled: #B89BC2;
+            --chat--color-typing: #80658D;
+
+            --chat--spacing: .85rem;
+            --chat--border-radius: 18px;
+            --chat--transition-duration: .18s;
+
+            --chat--window--width: 100%;
+            --chat--window--height: 100%;
+            --chat--window--border: none;
+            --chat--window--border-radius: 0;
+            --chat--window--box-shadow: none;
+
+            --chat--header-height: auto;
+            --chat--header--padding: .85rem;
+            --chat--header--background: linear-gradient(135deg, #FF4FB8 0%, #D81B9C 48%, #7B1FA2 100%);
+            --chat--header--color: #ffffff;
+            --chat--header--border-top: none;
+            --chat--header--border-bottom: none;
+            --chat--heading--font-size: 1.1rem;
+            --chat--subtitle--font-size: .78rem;
+            --chat--subtitle--line-height: 1.35;
+
+            --chat--textarea--height: 48px;
+            --chat--message--font-size: .9rem;
+            --chat--message--padding: .75rem .85rem;
+            --chat--message--border-radius: 16px;
+            --chat--message-line-height: 1.45;
+            --chat--message--bot--background: #FCE7F3;
+            --chat--message--bot--color: #2B1237;
+            --chat--message--user--background: linear-gradient(135deg, #D81B9C, #7B1FA2);
+            --chat--message--user--color: #ffffff;
+
+            --chat--toggle--background: #D81B9C;
+            --chat--toggle--hover--background: #A50F78;
+            --chat--toggle--active--background: #7B1FA2;
+        }
+
+        .n8n-chat {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .n8n-chat,
+        .n8n-chat * {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
+        }
+
+        .chat-window {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .chat-layout,
+        .chat-body,
+        .chat-messages-list {
+            background: #ffffff !important;
+        }
+
+        .chat-header {
+            border-radius: 0 !important;
+        }
+
+        .chat-input {
+            border-top: 1px solid rgba(216, 27, 156, .12) !important;
+            background: #FFF5FB !important;
+        }
+
+        .chat-input textarea {
+            border-radius: 18px !important;
+            border: 1px solid rgba(216, 27, 156, .16) !important;
+            background: #ffffff !important;
+            color: #2B1237 !important;
+            font-size: 14px !important;
+        }
+
+        .chat-input textarea::placeholder {
+            color: #9B7AA6 !important;
+        }
+
+        .chat-input-send-button {
+            background: linear-gradient(135deg, #FF4FB8, #D81B9C, #7B1FA2) !important;
+            border-radius: 16px !important;
+        }
+
+        @media (max-width: 370px) {
+            .app-chat-mobile {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+
+            .topbar-mobile-inner {
+                padding: 10px;
+                border-radius: 23px;
+            }
+
+            .brand-mobile-logo {
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                border-radius: 18px;
+            }
+
+            .brand-mobile-title {
+                font-size: 19px;
+            }
+
+            .brand-mobile-subtitle {
+                font-size: 10.8px;
+            }
+
+            .topbar-mobile-actions {
+                margin-top: 10px;
+            }
+
+            .btn-mobile-top {
+                min-height: 40px;
+                font-size: 11.5px;
+            }
+
+            .info-strip {
+                padding: 9px 11px;
+            }
+
+            .footer-mobile {
+                display: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            body::before {
+                content: "Esta vista está optimizada para celular";
+                position: fixed;
+                inset: 0;
+                z-index: 99999;
+                background: var(--aliada-gradient-dark);
+                color: #ffffff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 30px;
+                text-align: center;
+                font-size: 22px;
+                line-height: 1.3;
+                font-weight: 950;
+            }
+        }

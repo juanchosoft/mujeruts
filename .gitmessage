@@ -1,0 +1,22 @@
+# Tipo[alcance]: Descripción breve (máx 50 caracteres)
+
+# Cuerpo del commit (opcional, máx 72 caracteres por línea)
+# Explica QUÉ y POR QUÉ, no CÓMO
+
+# Pie (opcional)
+# BREAKING CHANGE: describe cambios que rompen compatibilidad
+# Closes #123
+# Co-authored-by: Nombre <email@ejemplo.com>
+
+# Tipos disponibles:
+# feat:     Nueva funcionalidad
+# fix:      Corrección de errores
+# docs:     Cambios en documentación
+# style:    Formato (espacios, puntuación, etc)
+# refactor: Refactorización de código
+# test:     Pruebas
+# chore:    Tareas de mantenimiento
+# perf:     Mejoras de rendimiento
+# ci:       Configuración CI/CD
+# build:    Sistema de construcción
+# revert:   Revertir commit anterior

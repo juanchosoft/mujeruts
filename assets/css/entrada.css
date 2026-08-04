@@ -1,0 +1,782 @@
+:root {
+            --violeta-1: #4a0d67;
+            --violeta-2: #6f1d8f;
+            --violeta-3: #8e2de2;
+            --violeta-4: #c039c8;
+            --rosa-1: #ff4fa3;
+            --rosa-2: #ff8ec7;
+            --rosa-3: #ffd8ec;
+            --blanco: #ffffff;
+            --texto: #3e2355;
+            --texto-suave: #7a628d;
+            --shadow-xl: 0 30px 90px rgba(45, 4, 72, 0.35);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Circular Std', Arial, sans-serif;
+            background: linear-gradient(135deg, #2f0a4b 0%, #55116f 35%, #8d1f8f 70%, #c72f8f 100%);
+            overflow-x: hidden;
+        }
+
+        .violeta-video-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .violeta-video-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.42) saturate(1.15) contrast(1.03);
+        }
+
+        .violeta-video-bg::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at 12% 15%, rgba(255, 79, 163, 0.30), transparent 28%),
+                radial-gradient(circle at 88% 85%, rgba(142, 45, 226, 0.26), transparent 30%),
+                linear-gradient(135deg, rgba(55, 8, 82, 0.78) 0%, rgba(99, 20, 129, 0.72) 50%, rgba(180, 37, 130, 0.65) 100%);
+            z-index: 1;
+        }
+
+        .violeta-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(28px);
+            opacity: .42;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .violeta-orb.orb-1 {
+            width: 280px;
+            height: 280px;
+            top: -40px;
+            left: -60px;
+            background: rgba(255, 79, 163, 0.40);
+        }
+
+        .violeta-orb.orb-2 {
+            width: 300px;
+            height: 300px;
+            right: -70px;
+            bottom: -60px;
+            background: rgba(142, 45, 226, 0.30);
+        }
+
+        .violeta-shell {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 28px;
+        }
+
+        .violeta-login-card {
+            width: 100%;
+            max-width: 1380px;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(255,255,255,.08);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .violeta-grid {
+            display: grid;
+            grid-template-columns: 1.03fr 0.97fr;
+            min-height: 780px;
+        }
+
+        .violeta-left {
+            position: relative;
+            padding: 46px 42px;
+            color: #fff;
+            background:
+                linear-gradient(155deg, rgba(255,255,255,.10), rgba(255,255,255,.04)),
+                linear-gradient(135deg, rgba(111, 29, 143, 0.55), rgba(255, 79, 163, 0.22));
+            overflow: hidden;
+        }
+
+        .violeta-left::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(180deg, rgba(255,255,255,.06), transparent 24%),
+                url('assets/img/fondoboton.png') center center / cover no-repeat;
+            opacity: .18;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        .violeta-left-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .violeta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.18);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.12);
+            width: fit-content;
+        }
+
+        .violeta-pill-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffd1e7, #ff6fb4);
+            box-shadow: 0 0 0 5px rgba(255,255,255,.08);
+        }
+
+        .violeta-title {
+            margin: 26px 0 18px;
+            font-size: 58px;
+            line-height: 1.02;
+            font-weight: 900;
+            letter-spacing: -.03em;
+            max-width: 560px;
+            color: #fff;
+            text-shadow: 0 8px 30px rgba(0,0,0,.18);
+        }
+
+        .violeta-title .accent {
+            display: block;
+            background: linear-gradient(90deg, #ffffff, #ffe6f3, #ffc0df);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .violeta-subtitle {
+            max-width: 580px;
+            font-size: 18px;
+            line-height: 1.75;
+            color: rgba(255,255,255,.90);
+            margin: 0 0 26px;
+        }
+
+        .violeta-features {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            max-width: 580px;
+        }
+
+        .violeta-feature {
+            padding: 16px 18px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.10);
+            border: 1px solid rgba(255,255,255,.14);
+            box-shadow: 0 12px 35px rgba(0,0,0,.10);
+        }
+
+        .violeta-feature span {
+            display: block;
+        }
+
+        .violeta-feature .sm {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            color: rgba(255,255,255,.70);
+            margin-bottom: 6px;
+        }
+
+        .violeta-feature .lg {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.45;
+        }
+
+        .violeta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 26px;
+        }
+
+        .violeta-tag {
+            padding: 12px 18px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.12);
+            border: 1px solid rgba(255,255,255,.16);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .violeta-right {
+            position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(255,241,248,.98) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 34px;
+            overflow: hidden;
+        }
+
+        .violeta-right::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(circle at top right, rgba(255, 79, 163, 0.12), transparent 25%),
+                radial-gradient(circle at bottom left, rgba(142, 45, 226, 0.11), transparent 28%);
+            pointer-events: none;
+        }
+
+        .violeta-form-box {
+            position: relative;
+            z-index: 3;
+            width: 100%;
+            max-width: 480px;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .violeta-mini-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 15px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(255, 79, 163, 0.10), rgba(142, 45, 226, 0.08));
+            border: 1px solid rgba(255, 79, 163, 0.14);
+            color: var(--rosa-1);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            margin-bottom: 16px;
+        }
+
+        .violeta-mini-badge i {
+            color: var(--violeta-3);
+        }
+
+        .violeta-brand {
+            font-size: 40px;
+            line-height: 1.05;
+            font-weight: 900;
+            letter-spacing: -.03em;
+            color: var(--texto);
+            margin: 0 0 12px;
+        }
+
+        .violeta-brand .gradient {
+            background: linear-gradient(90deg, var(--violeta-3), var(--violeta-4), var(--rosa-1));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .violeta-desc {
+            color: var(--texto-suave);
+            font-size: 15px;
+            line-height: 1.75;
+            margin-bottom: 18px;
+        }
+
+        .violeta-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(192, 57, 200, 0.24), transparent);
+            margin: 18px 0 22px;
+        }
+
+        .form-panel {
+            display: none;
+            animation: fadeIn .25s ease;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .violeta-row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .violeta-field {
+            margin-bottom: 18px;
+        }
+
+        .violeta-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--texto);
+            margin-bottom: 8px;
+        }
+
+        .violeta-input,
+        .violeta-select {
+            width: 100% !important;
+            height: 56px !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(192, 57, 200, 0.16) !important;
+            background: #ffffff !important;
+            color: #43285b !important;
+            padding: 14px 18px !important;
+            font-size: 15px !important;
+            box-shadow: 0 8px 25px rgba(142, 45, 226, 0.05);
+            transition: all .25s ease;
+        }
+
+        .violeta-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .violeta-input::placeholder {
+            color: #a789ba !important;
+        }
+
+        .violeta-input:focus,
+        .violeta-select:focus {
+            outline: none !important;
+            border-color: rgba(255, 79, 163, 0.42) !important;
+            box-shadow: 0 0 0 4px rgba(255, 79, 163, 0.10), 0 14px 35px rgba(142, 45, 226, 0.10) !important;
+            background: #fff !important;
+            color: #43285b !important;
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap .violeta-input {
+            padding-right: 56px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(111,29,143,.10), rgba(255,79,163,.14));
+            color: #8e2de2;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .2s ease;
+        }
+
+        .toggle-password:hover {
+            background: linear-gradient(135deg, rgba(111,29,143,.16), rgba(255,79,163,.20));
+            color: #d63384;
+        }
+
+        .violeta-remember {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 6px 0 22px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .violeta-check {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .violeta-check input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #d63384;
+            cursor: pointer;
+        }
+
+        .violeta-check label {
+            margin: 0;
+            color: var(--texto-suave);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .inline-link {
+            color: #d63384;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .inline-link:hover {
+            color: #7b2cbf;
+            text-decoration: none;
+        }
+
+        .violeta-btn {
+            width: 100%;
+            min-height: 56px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #7b2cbf 0%, #d63384 50%, #ff4fa3 100%);
+            color: #fff !important;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: .4px;
+            box-shadow: 0 20px 45px rgba(214, 51, 132, 0.28);
+            transition: all .25s ease;
+        }
+
+        .violeta-btn:hover,
+        .violeta-btn:focus {
+            transform: translateY(-2px);
+            color: #fff !important;
+            box-shadow: 0 24px 50px rgba(214, 51, 132, 0.34);
+        }
+
+        .violeta-btn i {
+            margin-right: 8px;
+        }
+
+        .violeta-btn-outline {
+            width: 100%;
+            min-height: 52px;
+            border-radius: 16px;
+            border: 1px solid rgba(214,51,132,.18);
+            background: rgba(255,255,255,.68);
+            color: #8a2bbf;
+            font-size: 15px;
+            font-weight: 800;
+            transition: .25s ease;
+        }
+
+        .violeta-btn-outline:hover {
+            background: rgba(255, 79, 163, .08);
+            color: #d63384;
+        }
+
+        .violeta-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .violeta-links p {
+            margin: 0;
+            color: var(--texto-suave);
+            font-size: 14px;
+        }
+
+        .violeta-links a {
+            color: #d63384;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .violeta-links a:hover {
+            color: #7b2cbf;
+            text-decoration: none;
+        }
+
+        .violeta-note {
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.65;
+            color: #9b7bad;
+            text-align: center;
+        }
+
+        @media (max-width: 1199.98px) {
+            .violeta-title {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 991.98px) {
+            .violeta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .violeta-left,
+            .violeta-right {
+                padding: 30px 24px;
+            }
+
+            .violeta-title {
+                font-size: 38px;
+                max-width: 100%;
+            }
+
+            .violeta-subtitle {
+                font-size: 15px;
+            }
+
+            .violeta-features {
+                grid-template-columns: 1fr;
+                max-width: 100%;
+            }
+
+            .violeta-form-box {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .violeta-shell {
+                padding: 14px;
+            }
+
+            .violeta-login-card {
+                border-radius: 22px;
+            }
+
+            .violeta-left,
+            .violeta-right {
+                padding: 24px 18px;
+            }
+
+            .violeta-title {
+                font-size: 31px;
+            }
+
+            .violeta-brand {
+                font-size: 30px;
+            }
+
+            .violeta-input,
+            .violeta-select,
+            .violeta-btn {
+                height: 52px !important;
+                min-height: 52px;
+            }
+
+            .violeta-row-2 {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .violeta-tag {
+                font-size: 13px;
+                padding: 10px 14px;
+            }
+        }
+      
+#tbl_departamento_id,
+#tbl_departamento_id option {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #ffffff !important;
+}
+
+#tbl_departamento_id:disabled {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: rgba(255,255,255,0.08) !important;
+    cursor: not-allowed;
+}
+
+.password-wrap{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-wrap .violeta-input{
+    width: 100%;
+    padding-right: 60px !important;
+}
+
+.toggle-password{
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: 0;
+    outline: none;
+    border-radius: 10px;
+    background: rgba(139, 92, 246, 0.12);
+    color: #7c3aed;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: auto !important;
+    transition: all .2s ease;
+}
+
+.toggle-password:hover{
+    background: rgba(139, 92, 246, 0.20);
+}
+
+.toggle-password:focus{
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+.toggle-password i{
+    pointer-events: none;
+    font-size: 15px;
+}
+
+.form-panel {
+    display: none;
+}
+
+.form-panel.active {
+    display: block;
+}
+
+.input-error {
+    border: 1px solid #e53935 !important;
+    box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.10) !important;
+}
+
+.error-message {
+    display: block;
+    margin-top: 8px;
+    color: #d32f2f;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.general-error-box {
+    background: rgba(211, 47, 47, 0.08);
+    border: 1px solid rgba(211, 47, 47, 0.20);
+    color: #b71c1c;
+    padding: 12px 14px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 600;
+}
+   .form-panel {
+            display: none;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        .input-error {
+            border: 1px solid #e53935 !important;
+            box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.10) !important;
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 8px;
+            color: #d32f2f;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .general-error-box {
+            background: rgba(211, 47, 47, 0.08);
+            border: 1px solid rgba(211, 47, 47, 0.20);
+            color: #b71c1c;
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .password-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrap .violeta-input {
+            width: 100%;
+            padding-right: 62px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border: none;
+            outline: none;
+            border-radius: 12px;
+            background: rgba(160, 83, 179, 0.10);
+            color: #7a2bbd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+            transition: all .25s ease;
+        }
+
+        .toggle-password:hover {
+            background: rgba(160, 83, 179, 0.18);
+            color: #5e1da8;
+        }
+
+        .toggle-password:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(122, 43, 189, 0.15);
+        }
+
+        .toggle-password i {
+            pointer-events: none;
+            font-size: 15px;
+        }
+
+        .violeta-field .violeta-input[readonly] {
+            cursor: not-allowed;
+        }
+  

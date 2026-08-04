@@ -1,0 +1,43 @@
+# Ignorar dependencias de Composer
+/vendor/
+
+# Ignorar archivos de Composer
+composer.lock
+
+# Ignorar archivos temporales del sistema
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# Ignorar configuraciones de IDEs y editores
+.vscode/
+.vscode/settings.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignorar cache de PHPUnit
+.phpunit.result.cache
+
+# Ignorar archivos de entorno
+.env
+.env.*   # ejemplo: .env.local, .env.dev
+
+# Ignorar otros directorios de caché o temporales
+/cache/
+/storage/
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ignorar archivos generados por el sistema
+*.bak
+*.old
+*.orig
+
+# Ignorar archivos de despliegue o configuraciones personales
+*.ftpconfig
+*.htaccess

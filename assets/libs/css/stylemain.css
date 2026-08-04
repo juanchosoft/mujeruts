@@ -1,0 +1,214 @@
+.color0 {
+    color: #FFFFFF;
+    /* Color de texto rojo */
+    background-color: #FFFFFF;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+.color1 {
+    color: #DC143C;
+    /* Color de texto rojo */
+    background-color: #DC143C;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+.color2 {
+    color: #FFA500;
+    /* Color de texto rojo */
+    background-color: #FFA500 !important;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+.color3 {
+    color: #4169E1;
+    /* Color de texto rojo */
+    background-color: #4169E1;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+.color4 {
+    color: #9ACD32;
+    /* Color de texto rojo */
+    background-color: #9ACD32;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+.color5 {
+    color: #ff33b8;
+    /* Color de texto rojo */
+    background-color: #ff33b8;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+.color6 {
+    color: #d6f986;
+    /* Color de texto rojo */
+    background-color: #d6f986;
+    /* Color de fondo rojo */
+    padding: 5px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+.cuerpoMapa {
+    transform: scale(0.9);
+
+}
+
+.container {
+    transform: scale(1.25);
+
+}
+
+.contenido-transformado {
+    transform: scale(0.9);
+    /* Transformación de escala inicial al 80% del tamaño original */
+    transition: transform 0.3s ease;
+    /* Transición suave para la animación */
+    background-color: transparent;
+    padding: 20px;
+    border-radius: 5px;
+    position: relative;
+    /* Asegura que los botones se posicionen correctamente con respecto a este div */
+}
+
+.bonotera {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 150px;
+    height: 5px;
+
+}
+
+.elemento {
+    width: 50%;
+    height: 50%;
+    border-radius: 2px;
+    margin: 0 4px;
+    /* Establece una separación de 2px entre cada elemento */
+    color: black;
+    align-items: center;
+    padding: 1px;
+    /* Añadir espacio alrededor del texto */
+    font-size: 24px !important;
+    /* Tamaño de la fuente */
+    font-weight: bold;
+    /* Negrita */
+    text-align: center;
+    /* Centrar el texto horizontalmente */
+    border: 2px solid black
+}
+
+@media (max-width: 600px) {
+    .elemento {
+        width: 40%;
+        /* Tamaño para resoluciones más bajas */
+        height: 40%;
+        /* Tamaño para resoluciones más bajas */
+    }
+}
+
+@media (max-width: 400px) {
+    .elemento {
+        width: 30%;
+        /* Tamaño para resoluciones aún más bajas */
+        height: 30%;
+        /* Tamaño para resoluciones aún más bajas */
+    }
+}
+
+.btn {
+    width: 10px;
+    height: 50px;
+    background-color: transparent;
+    top: 5px;
+    left: 10px;
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 22px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    z-index: 999;
+    width: 50%;
+    z-index: 99999999;
+
+}
+.fondo{
+    background-color: #000 !important; 
+    font-size: 13px !important;
+}
+
+.body{
+    font-family: "Fira Sans", sans-serif !important;
+    font-weight: 100 !important;
+    font-style: normal !important;
+}
+
+.texto1{
+    font-size: 18px;
+    font-family: "Fira Sans", sans-serif !important;
+    color:#000;
+}
+.iconos{
+    color:#000;  
+}

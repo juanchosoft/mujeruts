@@ -1,0 +1,23 @@
+/* Asegura que la imagen sea responsive */
+.mapa {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto; /* Centra la imagen horizontalmente */
+}
+
+/* Ajustes específicos para tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .mapa {
+        width: 80%; /* La imagen ocupará el 80% del ancho disponible en tablets */
+        height: auto;
+    }
+}
+
+/* Ajustes específicos para celulares */
+@media (max-width: 767px) {
+    .mapa {
+        width: 100%; /* La imagen ocupará el 100% del ancho disponible en celulares */
+        height: auto;
+    }
+}
