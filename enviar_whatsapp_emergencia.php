@@ -1,12 +1,35 @@
 <?php
-header('Content-Type: application/json; charset=UTF-8');
-date_default_timezone_set('America/Bogota');
-
 require_once __DIR__ . '/config_whatsapp.php';
 
+/**
+ * Normaliza un celular colombiano a formato internacional (prefijo + 10 dígitos).
+ */
+function normalizarTelefonoWhatsApp($numero)
+{
+    $digitos = preg_replace('/[^0-9]/', '', (string)$numero);
+    $prefijo = defined('WHATSAPP_COUNTRY_PREFIX') ? (string) WHATSAPP_COUNTRY_PREFIX : '57';
+
+    if ($digitos === '') {
+        return '';
+    }
+
+    if (strpos($digitos, $prefijo) === 0 && strlen($digitos) === strlen($prefijo) + 10) {
+        return $digitos;
+    }
+
+    if (strlen($digitos) === 10) {
+        return $prefijo . $digitos;
+    }
+
+    return $digitos;
+}
+
+/**
+ * Envía un mensaje de texto libre por WhatsApp Cloud API.
+ */
 function enviarWhatsAppTexto($numeroDestino, $mensaje)
 {
-    $numeroDestino = preg_replace('/[^0-9]/', '', (string)$numeroDestino);
+    $numeroDestino = normalizarTelefonoWhatsApp($numeroDestino);
 
     if ($numeroDestino === '') {
         return [
@@ -27,6 +50,72 @@ function enviarWhatsAppTexto($numeroDestino, $mensaje)
         ]
     ];
 
+    return ejecutarRequestWhatsApp($url, $payload, $numeroDestino);
+}
+
+/**
+ * Envía la plantilla de registro al contacto de emergencia.
+ * {{1}} = nombre del contacto, {{2}} = nombre de la persona registrada.
+ */
+function enviarWhatsAppPlantillaRegistro($telefonoContacto, $nombreContacto, $nombreUsuaria)
+{
+    $numeroDestino = normalizarTelefonoWhatsApp($telefonoContacto);
+
+    if ($numeroDestino === '') {
+        return [
+            'ok' => false,
+            'message' => 'Número de destino vacío.'
+        ];
+    }
+
+    $nombreContacto = trim((string)$nombreContacto);
+    $nombreUsuaria = trim((string)$nombreUsuaria);
+
+    if ($nombreContacto === '' || $nombreUsuaria === '') {
+        return [
+            'ok' => false,
+            'message' => 'Faltan parámetros de la plantilla.'
+        ];
+    }
+
+    $url = 'https://graph.facebook.com/' . WHATSAPP_API_VERSION . '/' . WHATSAPP_PHONE_NUMBER_ID . '/messages';
+
+    $payload = [
+        'messaging_product' => 'whatsapp',
+        'to' => $numeroDestino,
+        'type' => 'template',
+        'template' => [
+            'name' => WHATSAPP_TEMPLATE_NAME,
+            'language' => [
+                'code' => WHATSAPP_TEMPLATE_LANGUAGE,
+                'policy' => 'deterministic'
+            ],
+            'components' => [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        [
+                            'type' => 'text',
+                            'text' => $nombreContacto
+                        ],
+                        [
+                            'type' => 'text',
+                            'text' => $nombreUsuaria
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    return ejecutarRequestWhatsApp($url, $payload, $numeroDestino);
+}
+
+/**
+ * Ejecuta el POST a Graph API.
+ */
+function ejecutarRequestWhatsApp($url, array $payload, $numeroDestino)
+{
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -36,6 +125,7 @@ function enviarWhatsAppTexto($numeroDestino, $mensaje)
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload, JSON_UNESCAPED_UNICODE));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
     $response = curl_exec($ch);
     $httpCode = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -43,6 +133,7 @@ function enviarWhatsAppTexto($numeroDestino, $mensaje)
     curl_close($ch);
 
     if ($curlErr) {
+        error_log('WhatsApp CURL error [' . $numeroDestino . ']: ' . $curlErr);
         return [
             'ok' => false,
             'message' => 'Error CURL: ' . $curlErr
@@ -58,6 +149,8 @@ function enviarWhatsAppTexto($numeroDestino, $mensaje)
             'response' => $json
         ];
     }
+
+    error_log('WhatsApp API error [' . $numeroDestino . '] HTTP ' . $httpCode . ': ' . $response);
 
     return [
         'ok' => false,

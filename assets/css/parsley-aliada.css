@@ -1,0 +1,52 @@
+/* Parsley errors — identidad Aliada UTS (login/registro) */
+.parsley-errors-list {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    color: #B42318;
+    font-size: 12px;
+    font-weight: 650;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.35;
+}
+
+.parsley-errors-list.filled {
+    margin-top: 6px;
+}
+
+.parsley-errors-list li {
+    margin: 0;
+    padding: 0;
+}
+
+.input.parsley-error,
+.select.parsley-error,
+input.parsley-error,
+select.parsley-error,
+textarea.parsley-error {
+    border-color: #EF4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .12) !important;
+    background: #FFF8F8;
+}
+
+.input.parsley-success,
+.select.parsley-success,
+input.parsley-success,
+select.parsley-success,
+textarea.parsley-success {
+    border-color: rgba(123, 31, 162, .35) !important;
+}
+
+.password-wrap .input.parsley-error {
+    border-color: #EF4444 !important;
+}
+
+.check-wrap.parsley-error,
+.check-wrap .parsley-errors-list {
+    color: #B42318;
+}
+
+.check-wrap .parsley-errors-list {
+    width: 100%;
+    margin-top: 8px;
+}

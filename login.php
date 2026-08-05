@@ -138,6 +138,7 @@ function errorText($key)
 
     <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../assets/vendor/fonts/fontawesome/css/fontawesome-all.css">
+    <link rel="stylesheet" href="assets/css/parsley-aliada.css">
 
     <style>
         :root {
@@ -1572,7 +1573,7 @@ function errorText($key)
                 </div>
 
                 <div id="panelRegistro" class="form-panel">
-                    <form method="POST" action="registro.php" id="formRegistro">
+                    <form method="POST" action="registro.php" id="formRegistro" novalidate>
                         <div class="panel-head">
                             <h2>Crear cuenta</h2>
                             <p>Completa tus datos para acceder a Aliada UTS.</p>
@@ -1585,19 +1586,19 @@ function errorText($key)
                         <div class="register-scroll">
                             <div class="field">
                                 <label class="label" for="reg_nombre">Nombres</label>
-                                <input type="text" class="input <?= hasError('nombres') ? 'input-error' : '' ?>" id="reg_nombre" name="nombres" placeholder="Tus nombres" value="<?= oldValue('nombres') ?>">
+                                <input type="text" class="input <?= hasError('nombres') ? 'input-error' : '' ?>" id="reg_nombre" name="nombres" placeholder="Tus nombres" value="<?= oldValue('nombres') ?>" required data-parsley-pattern="^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$" data-parsley-pattern-message="Solo letras y espacios." data-parsley-required-message="Los nombres son obligatorios." data-parsley-trigger="blur">
                                 <?php if (hasError('nombres')): ?><span class="error-message"><?= errorText('nombres') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_apellido">Apellidos</label>
-                                <input type="text" class="input <?= hasError('apellidos') ? 'input-error' : '' ?>" id="reg_apellido" name="apellidos" placeholder="Tus apellidos" value="<?= oldValue('apellidos') ?>">
+                                <input type="text" class="input <?= hasError('apellidos') ? 'input-error' : '' ?>" id="reg_apellido" name="apellidos" placeholder="Tus apellidos" value="<?= oldValue('apellidos') ?>" required data-parsley-pattern="^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$" data-parsley-pattern-message="Solo letras y espacios." data-parsley-required-message="Los apellidos son obligatorios." data-parsley-trigger="blur">
                                 <?php if (hasError('apellidos')): ?><span class="error-message"><?= errorText('apellidos') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_tipo_doc">Tipo de documento</label>
-                                <select class="select <?= hasError('tipo_documento') ? 'input-error' : '' ?>" id="reg_tipo_doc" name="tipo_documento">
+                                <select class="select <?= hasError('tipo_documento') ? 'input-error' : '' ?>" id="reg_tipo_doc" name="tipo_documento" required data-parsley-required-message="Debes seleccionar el tipo de documento." data-parsley-trigger="change">
                                     <option value="">Selecciona</option>
                                     <option value="CC" <?= oldValue('tipo_documento') === 'CC' ? 'selected' : '' ?>>Cédula de ciudadanía</option>
                                     <option value="TI" <?= oldValue('tipo_documento') === 'TI' ? 'selected' : '' ?>>Tarjeta de identidad</option>
@@ -1609,31 +1610,31 @@ function errorText($key)
 
                             <div class="field">
                                 <label class="label" for="reg_documento">Número de documento</label>
-                                <input type="text" class="input <?= hasError('documento') ? 'input-error' : '' ?>" id="reg_documento" name="documento" placeholder="Número de documento" value="<?= oldValue('documento') ?>">
+                                <input type="text" class="input <?= hasError('documento') ? 'input-error' : '' ?>" id="reg_documento" name="documento" placeholder="Número de documento" value="<?= oldValue('documento') ?>" inputmode="numeric" maxlength="20" required data-parsley-type="digits" data-parsley-type-message="Solo números, sin caracteres especiales." data-parsley-required-message="El número de documento es obligatorio." data-parsley-remote="admin/ajax/validar_documento_uts.php" data-parsley-remote-validator="utsdocumento" data-parsley-remote-message="Solo se pueden registrar personas asociadas a UTS." data-parsley-remote-debounce="400" data-parsley-trigger="focusout" data-parsley-trigger-after-failure="focusout">
                                 <?php if (hasError('documento')): ?><span class="error-message"><?= errorText('documento') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_correo">Correo electrónico</label>
-                                <input type="email" class="input <?= hasError('correo') ? 'input-error' : '' ?>" id="reg_correo" name="correo" placeholder="correo@ejemplo.com" value="<?= oldValue('correo') ?>">
+                                <input type="email" class="input <?= hasError('correo') ? 'input-error' : '' ?>" id="reg_correo" name="correo" placeholder="correo@ejemplo.com" value="<?= oldValue('correo') ?>" required data-parsley-type="email" data-parsley-type-message="Ingresa un correo electrónico válido." data-parsley-required-message="El correo es obligatorio." data-parsley-trigger="blur">
                                 <?php if (hasError('correo')): ?><span class="error-message"><?= errorText('correo') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_celular">Celular</label>
-                                <input type="text" class="input <?= hasError('celular') ? 'input-error' : '' ?>" id="reg_celular" name="celular" placeholder="Número de celular" value="<?= oldValue('celular') ?>">
+                                <input type="text" class="input <?= hasError('celular') ? 'input-error' : '' ?>" id="reg_celular" name="celular" placeholder="10 dígitos" value="<?= oldValue('celular') ?>" inputmode="numeric" maxlength="10" required data-parsley-type="digits" data-parsley-length="[10, 10]" data-parsley-length-message="Debe tener exactamente 10 dígitos." data-parsley-type-message="Solo números." data-parsley-required-message="El celular es obligatorio." data-parsley-trigger="blur">
                                 <?php if (hasError('celular')): ?><span class="error-message"><?= errorText('celular') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_contacto_emergencia">Celular contacto de emergencia</label>
-                                <input type="text" class="input <?= hasError('contacto_emergencia') ? 'input-error' : '' ?>" id="reg_contacto_emergencia" name="contacto_emergencia" placeholder="Número del contacto" value="<?= oldValue('contacto_emergencia') ?>">
+                                <input type="text" class="input <?= hasError('contacto_emergencia') ? 'input-error' : '' ?>" id="reg_contacto_emergencia" name="contacto_emergencia" placeholder="10 dígitos" value="<?= oldValue('contacto_emergencia') ?>" inputmode="numeric" maxlength="10" required data-parsley-type="digits" data-parsley-length="[10, 10]" data-parsley-length-message="Debe tener exactamente 10 dígitos." data-parsley-type-message="Solo números." data-parsley-required-message="El celular de emergencia es obligatorio." data-parsley-trigger="blur">
                                 <?php if (hasError('contacto_emergencia')): ?><span class="error-message"><?= errorText('contacto_emergencia') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_nombre_contacto">Nombre contacto de emergencia</label>
-                                <input type="text" class="input <?= hasError('nombre_contacto') ? 'input-error' : '' ?>" id="reg_nombre_contacto" name="nombre_contacto" placeholder="Nombre del contacto" value="<?= oldValue('nombre_contacto') ?>">
+                                <input type="text" class="input <?= hasError('nombre_contacto') ? 'input-error' : '' ?>" id="reg_nombre_contacto" name="nombre_contacto" placeholder="Nombre del contacto" value="<?= oldValue('nombre_contacto') ?>" required data-parsley-pattern="^[A-Za-zÁÉÍÓÚÜáéíóúüÑñ ]+$" data-parsley-pattern-message="Solo letras y espacios." data-parsley-required-message="El nombre del contacto es obligatorio." data-parsley-trigger="blur">
                                 <?php if (hasError('nombre_contacto')): ?><span class="error-message"><?= errorText('nombre_contacto') ?></span><?php endif; ?>
                             </div>
 
@@ -1645,7 +1646,7 @@ function errorText($key)
 
                             <div class="field">
                                 <label class="label" for="tbl_municipio_id">Municipio</label>
-                                <select class="select <?= hasError('tbl_municipio_id') ? 'input-error' : '' ?>" id="tbl_municipio_id" name="tbl_municipio_id" data-selected="<?= oldValue('tbl_municipio_id') ?>">
+                                <select class="select <?= hasError('tbl_municipio_id') ? 'input-error' : '' ?>" id="tbl_municipio_id" name="tbl_municipio_id" data-selected="<?= oldValue('tbl_municipio_id') ?>" required data-parsley-required-message="Debes seleccionar un municipio." data-parsley-trigger="change">
                                     <option value="">Cargando municipios...</option>
                                 </select>
                                 <?php if (hasError('tbl_municipio_id')): ?><span class="error-message"><?= errorText('tbl_municipio_id') ?></span><?php endif; ?>
@@ -1653,20 +1654,20 @@ function errorText($key)
 
                             <div class="field">
                                 <label class="label" for="reg_direccion">Dirección</label>
-                                <input type="text" class="input <?= hasError('direccion') ? 'input-error' : '' ?>" id="reg_direccion" name="direccion" placeholder="Dirección" value="<?= oldValue('direccion') ?>">
+                                <input type="text" class="input <?= hasError('direccion') ? 'input-error' : '' ?>" id="reg_direccion" name="direccion" placeholder="Dirección" value="<?= oldValue('direccion') ?>" required data-parsley-required-message="La dirección es obligatoria." data-parsley-trigger="blur">
                                 <?php if (hasError('direccion')): ?><span class="error-message"><?= errorText('direccion') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_usuario">Nombre de usuario</label>
-                                <input type="text" class="input <?= hasError('usuario') ? 'input-error' : '' ?>" id="reg_usuario" name="usuario" placeholder="Crea tu usuario" value="<?= oldValue('usuario') ?>">
+                                <input type="text" class="input <?= hasError('usuario') ? 'input-error' : '' ?>" id="reg_usuario" name="usuario" placeholder="Solo letras y números" value="<?= oldValue('usuario') ?>" required data-parsley-pattern="^[A-Za-z0-9]+$" data-parsley-pattern-message="Solo letras y números, sin espacios ni símbolos." data-parsley-required-message="El usuario es obligatorio." data-parsley-remote="admin/ajax/validar_usuario_unico.php" data-parsley-remote-validator="usuariounico" data-parsley-remote-message="Este nombre de usuario ya está en uso." data-parsley-remote-debounce="400" data-parsley-trigger="focusout" data-parsley-trigger-after-failure="focusout">
                                 <?php if (hasError('usuario')): ?><span class="error-message"><?= errorText('usuario') ?></span><?php endif; ?>
                             </div>
 
                             <div class="field">
                                 <label class="label" for="reg_password">Contraseña</label>
                                 <div class="password-wrap">
-                                    <input type="password" class="input <?= hasError('password') ? 'input-error' : '' ?>" id="reg_password" name="password" placeholder="Crea una contraseña">
+                                    <input type="password" class="input <?= hasError('password') ? 'input-error' : '' ?>" id="reg_password" name="password" placeholder="Mín. 8, mayúscula, minúscula y número" required data-parsley-minlength="8" data-parsley-minlength-message="Mínimo 8 caracteres." data-parsley-pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" data-parsley-pattern-message="Debe incluir mayúscula, minúscula y un número." data-parsley-required-message="La contraseña es obligatoria." data-parsley-trigger="blur">
                                     <button type="button" class="toggle-password" data-target="reg_password" aria-label="Mostrar contraseña">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -1677,7 +1678,7 @@ function errorText($key)
                             <div class="field">
                                 <label class="label" for="reg_password2">Confirmar contraseña</label>
                                 <div class="password-wrap">
-                                    <input type="password" class="input <?= hasError('password_confirmacion') ? 'input-error' : '' ?>" id="reg_password2" name="password_confirmacion" placeholder="Repite la contraseña">
+                                    <input type="password" class="input <?= hasError('password_confirmacion') ? 'input-error' : '' ?>" id="reg_password2" name="password_confirmacion" placeholder="Repite la contraseña" required data-parsley-equalto="#reg_password" data-parsley-equalto-message="Las contraseñas no coinciden." data-parsley-required-message="Debes confirmar la contraseña." data-parsley-trigger="blur">
                                     <button type="button" class="toggle-password" data-target="reg_password2" aria-label="Mostrar contraseña">
                                         <i class="fas fa-eye"></i>
                                     </button>
@@ -1696,6 +1697,8 @@ function errorText($key)
         name="aceptoDatos"
         value="1"
         required
+        data-parsley-required-message="Debes aceptar el tratamiento de datos personales."
+        data-parsley-errors-container="#aceptoDatosError"
         style="margin-top:2px;"
     >
 
@@ -1710,6 +1713,7 @@ function errorText($key)
         </a>
         para recibir orientación y acompañamiento institucional mediante inteligencia artificial.
     </span>
+    <div id="aceptoDatosError"></div>
 </label>
                         </div>
 
@@ -1733,6 +1737,8 @@ function errorText($key)
 
     <script src="assets/js/vendor-all.min.js"></script>
     <script src="assets/js/plugins/bootstrap.min.js"></script>
+    <script src="assets/vendor/parsley/parsley.min.js"></script>
+    <script src="assets/vendor/parsley/i18n/es.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
@@ -1935,79 +1941,60 @@ function errorText($key)
 
             const formRegistro = document.getElementById('formRegistro');
 
-            if (formRegistro) {
-                formRegistro.addEventListener('submit', function (e) {
-                    const pass1 = document.getElementById('reg_password').value.trim();
-                    const pass2 = document.getElementById('reg_password2').value.trim();
-                    const acepta = document.getElementById('aceptoDatos').checked;
-                    const municipio = document.getElementById('tbl_municipio_id').value;
-                    const contactoEmergencia = document.getElementById('reg_contacto_emergencia').value.trim();
-                    const nombreContacto = document.getElementById('reg_nombre_contacto').value.trim();
+            if (formRegistro && typeof window.Parsley !== 'undefined') {
+                if (window.Parsley.setLocale) {
+                    window.Parsley.setLocale('es');
+                }
 
-                    if (!acepta) {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención',
-                            text: 'Debes aceptar el tratamiento de datos personales.',
-                            confirmButtonColor: '#D81B9C'
-                        });
-                        return;
+                window.Parsley.addAsyncValidator('utsdocumento', function (xhr) {
+                    try {
+                        const res = xhr.responseJSON || JSON.parse(xhr.responseText || '{}');
+                        return !!(res && res.valid === true);
+                    } catch (e) {
+                        return xhr.status >= 200 && xhr.status < 300;
+                    }
+                });
+
+                window.Parsley.addAsyncValidator('usuariounico', function (xhr) {
+                    try {
+                        const res = xhr.responseJSON || JSON.parse(xhr.responseText || '{}');
+                        return !!(res && res.valid === true);
+                    } catch (e) {
+                        return xhr.status >= 200 && xhr.status < 300;
+                    }
+                });
+
+                const $form = $(formRegistro);
+                let enviandoRegistro = false;
+
+                $form.parsley({
+                    errorClass: 'parsley-error',
+                    successClass: 'parsley-success',
+                    errorsWrapper: '<ul class="parsley-errors-list"></ul>',
+                    errorTemplate: '<li></li>',
+                    trigger: 'focusout',
+                    triggerAfterFailure: 'focusout',
+                    focus: 'first'
+                });
+
+                // whenValidate espera los AJAX remotos; isValid+force los duplicaba y bloqueaba el POST
+                $form.on('submit', function (e) {
+                    e.preventDefault();
+
+                    if (enviandoRegistro) {
+                        return false;
                     }
 
-                    if (municipio === '') {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención',
-                            text: 'Debes seleccionar un municipio.',
-                            confirmButtonColor: '#D81B9C'
+                    $form.parsley().whenValidate()
+                        .done(function () {
+                            enviandoRegistro = true;
+                            HTMLFormElement.prototype.submit.call(formRegistro);
+                        })
+                        .fail(function () {
+                            enviandoRegistro = false;
                         });
-                        return;
-                    }
 
-                    if (contactoEmergencia === '') {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención',
-                            text: 'Debes ingresar el celular del contacto de emergencia.',
-                            confirmButtonColor: '#D81B9C'
-                        });
-                        return;
-                    }
-
-                    if (nombreContacto === '') {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención',
-                            text: 'Debes ingresar el nombre del contacto de emergencia.',
-                            confirmButtonColor: '#D81B9C'
-                        });
-                        return;
-                    }
-
-                    if (pass1 === '' || pass2 === '') {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Atención',
-                            text: 'Debes completar la contraseña y su confirmación.',
-                            confirmButtonColor: '#D81B9C'
-                        });
-                        return;
-                    }
-
-                    if (pass1 !== pass2) {
-                        e.preventDefault();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Contraseñas no coinciden',
-                            text: 'Verifica que ambas contraseñas sean iguales.',
-                            confirmButtonColor: '#D81B9C'
-                        });
-                    }
+                    return false;
                 });
             }
         });
