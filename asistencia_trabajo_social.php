@@ -15,6 +15,17 @@ $currentYear     = date('Y');
 
 $nombreUsuario = '';
 
+$idUsuario = '';
+
+
+if (!empty($_SESSION['id'])) {
+    $idUsuario = trim((string) $_SESSION['id']);
+}
+
+if ($idUsuario === '') {
+    $idUsuario = '0';
+}
+
 if (!empty($_SESSION['nombre_completo'])) {
     $nombreUsuario = trim((string) $_SESSION['nombre_completo']);
 } elseif (!empty($_SESSION['nombre'])) {
@@ -659,6 +670,11 @@ $saludoBienvenida =
                 JSON_UNESCAPED_SLASHES
             ); ?>;
 
+            const idUsuario = <?= json_encode(
+                $idUsuario,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            ); ?>;
+
             createChat({
                 webhookUrl: 'https://n8n.spidersoftwareia.com/webhook/5fd93f22-9441-4b57-aace-63c81720869d/chat',
 
@@ -679,7 +695,8 @@ $saludoBienvenida =
                     asistente: 'Alma IA',
                     proyecto: 'Aliada UTS',
                     modulo: 'Trabajo Social con IA',
-                    nombre_usuario: nombreUsuario
+                    nombre_usuario: nombreUsuario,
+                    id_usuario: idUsuario
                 },
 
                 showWelcomeScreen: false,

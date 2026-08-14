@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config_whatsapp.php';
+require_once __DIR__ . '/admin/classes/ConfigLoader.php';
 
 /**
  * Normaliza un celular colombiano a formato internacional (prefijo + 10 dígitos).
@@ -112,6 +113,71 @@ function enviarWhatsAppPlantillaRegistro($telefonoContacto, $nombreContacto, $no
 }
 
 /**
+ * Notifica al contacto de emergencia cuando el chat psicológico clasifica
+ * riesgo nivel 4 (decisión D2). Usa la plantilla configurada en
+ * [chat_psicologico] de config.ini, distinta de la plantilla de registro
+ * (uts_mujer2), porque su copy no aplica a una alerta de riesgo.
+ *
+ * Mientras no exista una plantilla aprobada, no intenta la llamada HTTP:
+ * el interruptor real está en config.ini, no en el código.
+ */
+function enviarWhatsAppAlertaRiesgo($telefonoContacto, $nombreContacto, $nombreUsuaria)
+{
+    $config = new ConfigLoader();
+    $templateName = $config->getWhatsappRiesgoTemplateName();
+
+    if ($templateName === '') {
+        return [
+            'ok' => false,
+            'message' => 'Plantilla de riesgo no configurada aún.'
+        ];
+    }
+
+    $numeroDestino = normalizarTelefonoWhatsApp($telefonoContacto);
+
+    if ($numeroDestino === '') {
+        return [
+            'ok' => false,
+            'message' => 'Número de destino vacío.'
+        ];
+    }
+
+    $nombreContacto = trim((string) $nombreContacto);
+    $nombreUsuaria = trim((string) $nombreUsuaria);
+
+    $url = 'https://graph.facebook.com/' . WHATSAPP_API_VERSION . '/' . WHATSAPP_PHONE_NUMBER_ID . '/messages';
+
+    $payload = [
+        'messaging_product' => 'whatsapp',
+        'to' => $numeroDestino,
+        'type' => 'template',
+        'template' => [
+            'name' => $templateName,
+            'language' => [
+                'code' => $config->getWhatsappRiesgoTemplateLanguage(),
+                'policy' => 'deterministic'
+            ],
+            'components' => [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        /*
+                         * Plantilla "notificacion_aliada": {{1}} = nombre de la usuaria
+                         * ("...que *{{1}}* está atravesando..."), {{2}} = nombre del
+                         * contacto de confianza ("Hola. *{{2}}*💚" - a quien se saluda).
+                         */
+                        ['type' => 'text', 'text' => $nombreUsuaria !== '' ? $nombreUsuaria : 'una usuaria'],
+                        ['type' => 'text', 'text' => $nombreContacto !== '' ? $nombreContacto : 'contacto']
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    return ejecutarRequestWhatsApp($url, $payload, $numeroDestino);
+}
+
+/**
  * Ejecuta el POST a Graph API.
  */
 function ejecutarRequestWhatsApp($url, array $payload, $numeroDestino)
@@ -150,7 +216,8 @@ function ejecutarRequestWhatsApp($url, array $payload, $numeroDestino)
         ];
     }
 
-    error_log('WhatsApp API error [' . $numeroDestino . '] HTTP ' . $httpCode . ': ' . $response);
+    error_log('WhatsApp API error [' . $numeroDestino . '] HTTP ' . $httpCode . ': ' . $response. "URL: " . $url);
+    error_log('Payload: ' . json_encode($payload));
 
     return [
         'ok' => false,

@@ -15,6 +15,15 @@ $currentYear     = date('Y');
 
 $nombreUsuario = '';
 
+$idUsuario = '';
+
+if (!empty($_SESSION['id'])) {
+    $idUsuario = trim((string) $_SESSION['id']);
+}
+
+if ($idUsuario === '') {
+    $idUsuario = '0';
+}   
 if (!empty($_SESSION['nombre_completo'])) {
     $nombreUsuario = trim((string) $_SESSION['nombre_completo']);
 } elseif (!empty($_SESSION['nombre'])) {
@@ -659,6 +668,11 @@ $saludoBienvenida =
                 JSON_UNESCAPED_SLASHES
             ); ?>;
 
+            const idUsuario = <?= json_encode(
+                $idUsuario,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            ); ?>;
+
             createChat({
                 webhookUrl: 'https://n8n.spidersoftwareia.com/webhook/8df39cfc-b6b0-4815-afe2-aeea64794c3b/chat',
 
@@ -679,7 +693,8 @@ $saludoBienvenida =
                     asistente: 'Violeta IA',
                     proyecto: 'Aliada UTS',
                     modulo: 'Apoyo psicológico con IA',
-                    nombre_usuario: nombreUsuario
+                    nombre_usuario: nombreUsuario,
+                    id_usuario: idUsuario
                 },
 
                 showWelcomeScreen: false,
