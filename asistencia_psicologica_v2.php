@@ -657,6 +657,8 @@ $saludoBienvenida =
 
             const AUDIO_STORAGE_KEY = 'aliada_uts_audio_psicologia_activo';
             const DURACION_MAXIMA_GRABACION_MS = 60000;
+            const UMBRAL_VOLUMEN_VOZ = 0.02;
+            const SILENCIO_MS_PARA_DETENER = 1300;
 
             const listaMensajes = document.getElementById('chat-mensajes');
             const formulario = document.getElementById('chat-form');
@@ -675,6 +677,17 @@ $saludoBienvenida =
             let grabando = false;
             let temporizadorLimiteGrabacion = null;
             let temporizadorEstado = null;
+
+            /*
+             * Detección de silencio (Web Audio API) para detener la
+             * grabación sola cuando la usuaria deja de hablar.
+             */
+            let audioContextGrabacion = null;
+            let analizadorGrabacion = null;
+            let bufferAnalisisVoz = null;
+            let cuadroDeteccionSilencio = null;
+            let huboVozEnGrabacionActual = false;
+            let silencioIniciadoEn = null;
 
             let colaAudio = [];
             let reproduciendoAudio = false;
@@ -943,9 +956,19 @@ $saludoBienvenida =
                     agregarBurbuja('asistente', datos.respuesta_texto);
                     encolarRespuestaHablada(datos.respuesta_texto);
 
-                    if (datos.requiere_botones_emergencia) {
-                        agregarBotonesEmergencia();
-                    }
+                    /*
+                     * DESHABILITADO TEMPORALMENTE (a petición del cliente):
+                     * no mostrar el panel de 3 botones de emergencia para no
+                     * interrumpir la conversación. El auto-registro en
+                     * tbl_alerta_policia y el aviso por WhatsApp al contacto de
+                     * confianza en riesgo nivel 4 (ChatRiesgoService, backend)
+                     * NO dependen de esto y se siguen ejecutando igual.
+                     * Para reactivar el panel de botones, descomentar:
+                     *
+                     * if (datos.requiere_botones_emergencia) {
+                     *     agregarBotonesEmergencia();
+                     * }
+                     */
                 } catch (error) {
                     quitarIndicadorEscribiendo();
                     agregarBurbuja('sistema', error.message || 'Hubo un problema de conexión. Por favor intenta de nuevo.');
@@ -977,12 +1000,87 @@ $saludoBienvenida =
             |--------------------------------------------------------------------------
             | CAPTURA DE VOZ (grabación + ElevenLabs Speech-to-Text)
             |--------------------------------------------------------------------------
-            | La transcripción se escribe en el campo de texto pero no se envía
-            | automáticamente: la usuaria revisa y confirma con el botón enviar.
+            | La grabación se detiene sola cuando detecta silencio tras haber
+            | escuchado voz (Web Audio API sobre el mismo stream del micrófono),
+            | y el mensaje transcrito se envía automáticamente, sin que la
+            | usuaria tenga que tocar el botón de nuevo ni el de enviar. Un
+            | segundo toque al micrófono mientras graba sigue funcionando como
+            | corte manual (por ejemplo si terminó de hablar antes de la pausa
+            | de silencio configurada).
             */
             function actualizarBotonMicrofono() {
                 btnMicrofono.classList.toggle('escuchando', grabando);
                 btnMicrofono.setAttribute('aria-pressed', grabando ? 'true' : 'false');
+            }
+
+            function calcularVolumenActual() {
+                analizadorGrabacion.getByteTimeDomainData(bufferAnalisisVoz);
+
+                let sumaCuadrados = 0;
+                for (let i = 0; i < bufferAnalisisVoz.length; i++) {
+                    const muestra = (bufferAnalisisVoz[i] - 128) / 128;
+                    sumaCuadrados += muestra * muestra;
+                }
+
+                return Math.sqrt(sumaCuadrados / bufferAnalisisVoz.length);
+            }
+
+            function monitorearSilencio() {
+                if (!grabando || !analizadorGrabacion) {
+                    return;
+                }
+
+                const volumen = calcularVolumenActual();
+
+                if (volumen > UMBRAL_VOLUMEN_VOZ) {
+                    huboVozEnGrabacionActual = true;
+                    silencioIniciadoEn = null;
+                } else if (huboVozEnGrabacionActual) {
+                    if (silencioIniciadoEn === null) {
+                        silencioIniciadoEn = Date.now();
+                    } else if (Date.now() - silencioIniciadoEn >= SILENCIO_MS_PARA_DETENER) {
+                        detenerGrabacion();
+                        return;
+                    }
+                }
+
+                cuadroDeteccionSilencio = requestAnimationFrame(monitorearSilencio);
+            }
+
+            function iniciarDeteccionSilencio(flujo) {
+                const AudioContextClase = window.AudioContext || window.webkitAudioContext;
+
+                if (!AudioContextClase) {
+                    // Sin Web Audio API no hay corte automático; queda el límite de 60s y el toque manual.
+                    return;
+                }
+
+                audioContextGrabacion = new AudioContextClase();
+                const fuente = audioContextGrabacion.createMediaStreamSource(flujo);
+                analizadorGrabacion = audioContextGrabacion.createAnalyser();
+                analizadorGrabacion.fftSize = 2048;
+                fuente.connect(analizadorGrabacion);
+
+                bufferAnalisisVoz = new Uint8Array(analizadorGrabacion.fftSize);
+                huboVozEnGrabacionActual = false;
+                silencioIniciadoEn = null;
+
+                monitorearSilencio();
+            }
+
+            function detenerDeteccionSilencio() {
+                if (cuadroDeteccionSilencio !== null) {
+                    cancelAnimationFrame(cuadroDeteccionSilencio);
+                    cuadroDeteccionSilencio = null;
+                }
+
+                if (audioContextGrabacion) {
+                    audioContextGrabacion.close().catch(() => {});
+                    audioContextGrabacion = null;
+                }
+
+                analizadorGrabacion = null;
+                bufferAnalisisVoz = null;
             }
 
             async function iniciarGrabacion() {
@@ -1005,13 +1103,16 @@ $saludoBienvenida =
 
                     grabadora.addEventListener('stop', () => {
                         flujo.getTracks().forEach((pista) => pista.stop());
+                        detenerDeteccionSilencio();
                         procesarGrabacion();
                     });
 
                     grabadora.start();
                     grabando = true;
                     actualizarBotonMicrofono();
-                    mostrarEstado('Grabando... toca de nuevo para detener.');
+                    mostrarEstado('Te escucho... el mensaje se enviará solo cuando dejes de hablar.');
+
+                    iniciarDeteccionSilencio(flujo);
 
                     temporizadorLimiteGrabacion = setTimeout(() => {
                         detenerGrabacion();
@@ -1063,10 +1164,19 @@ $saludoBienvenida =
                         throw new Error(datos.error || 'No fue posible transcribir el audio.');
                     }
 
+                    const textoTranscrito = (datos.texto || '').trim();
+
+                    if (textoTranscrito === '') {
+                        mostrarEstado('No se detectó texto en tu mensaje de voz.', true);
+                        return;
+                    }
+
                     const textoPrevio = campoTexto.value.trim();
-                    campoTexto.value = textoPrevio === '' ? datos.texto : textoPrevio + ' ' + datos.texto;
-                    campoTexto.focus();
-                    mostrarEstado('Transcripción lista. Revisa y pulsa enviar.');
+                    const mensajeAEnviar = textoPrevio === '' ? textoTranscrito : textoPrevio + ' ' + textoTranscrito;
+                    campoTexto.value = '';
+
+                    mostrarEstado('Enviando tu mensaje de voz...');
+                    enviarMensaje(mensajeAEnviar, 'voz');
                 } catch (error) {
                     mostrarEstado(error.message || 'No fue posible transcribir el audio.', true);
                 }

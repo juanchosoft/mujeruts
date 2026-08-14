@@ -136,8 +136,8 @@ function errorText($key)
     <link rel="icon" type="image/png" href="assets/img/icono.png">
     <link rel="shortcut icon" type="image/png" href="assets/img/icono.png">
 
-    <link rel="stylesheet" href="../assets/vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/vendor/fonts/fontawesome/css/fontawesome-all.css">
+    <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendor/fonts/fontawesome/css/fontawesome-all.css">
     <link rel="stylesheet" href="assets/css/parsley-aliada.css">
 
     <style>

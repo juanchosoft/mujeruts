@@ -161,8 +161,13 @@ function enviarWhatsAppAlertaRiesgo($telefonoContacto, $nombreContacto, $nombreU
                 [
                     'type' => 'body',
                     'parameters' => [
-                        ['type' => 'text', 'text' => $nombreContacto !== '' ? $nombreContacto : 'contacto'],
-                        ['type' => 'text', 'text' => $nombreUsuaria !== '' ? $nombreUsuaria : 'una usuaria']
+                        /*
+                         * Plantilla "notificacion_aliada": {{1}} = nombre de la usuaria
+                         * ("...que *{{1}}* está atravesando..."), {{2}} = nombre del
+                         * contacto de confianza ("Hola. *{{2}}*💚" - a quien se saluda).
+                         */
+                        ['type' => 'text', 'text' => $nombreUsuaria !== '' ? $nombreUsuaria : 'una usuaria'],
+                        ['type' => 'text', 'text' => $nombreContacto !== '' ? $nombreContacto : 'contacto']
                     ]
                 ]
             ]

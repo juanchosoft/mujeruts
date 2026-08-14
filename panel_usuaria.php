@@ -113,7 +113,7 @@ $currentYear     = date('Y');
                     </article>
                 </a>
 
-                <a href="asistencia_psicologica.php" class="service-link">
+                <a href="asistencia_psicologica_v2.php" class="service-link">
                     <article class="service-card">
                         <div>
                             <div class="service-icon">
