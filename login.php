@@ -1240,6 +1240,1237 @@ function errorText($key)
                 gap: 8px;
             }
         }
+
+        /* =========================================================
+           AJUSTE VISUAL 2026 - LOGIN / REGISTRO RESPONSIVE
+           Solo presentación. No cambia endpoints, IDs, names,
+           validaciones, sesiones ni flujo de autenticación.
+        ========================================================= */
+
+        .ui-icon {
+            width: 22px;
+            height: 22px;
+            display: block;
+            flex: 0 0 auto;
+            pointer-events: none;
+        }
+
+        .aliada-onboarding-shield .ui-icon {
+            width: 25px;
+            height: 25px;
+        }
+
+        .aliada-feature-icon .ui-icon {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.1;
+        }
+
+        .aliada-btn-primary .ui-icon,
+        .aliada-btn-secondary .ui-icon,
+        .btn-main .ui-icon,
+        .btn-outline-mobile .ui-icon {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2.35;
+        }
+
+        .delete-account-link .ui-icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        .mobile-login-page {
+            min-height: 100svh;
+            padding: clamp(14px, 2.2vw, 28px);
+        }
+
+        .mobile-card {
+            max-width: 1040px;
+            min-height: 640px;
+            display: grid;
+            grid-template-columns: minmax(320px, .88fr) minmax(400px, 1.12fr);
+            border-radius: 36px;
+            border: 1px solid rgba(255,255,255,.92);
+            background: rgba(255,255,255,.965);
+            box-shadow:
+                0 34px 90px rgba(69, 20, 83, .23),
+                0 10px 30px rgba(216, 27, 156, .08);
+        }
+
+        .mobile-hero {
+            min-height: 100%;
+            padding: clamp(34px, 4vw, 54px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-radius: 0;
+        }
+
+        .mobile-hero::before {
+            content: "";
+            position: absolute;
+            inset: auto auto -105px -90px;
+            width: 230px;
+            height: 230px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+        }
+
+        .logo-box {
+            width: 160px;
+            height: 78px;
+            border-radius: 25px;
+            margin-bottom: 26px;
+            box-shadow: 0 16px 36px rgba(74, 14, 99, .19);
+        }
+
+        .logo-box img {
+            max-height: 54px;
+        }
+
+        .mobile-badge {
+            width: fit-content;
+            max-width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 9px;
+            font-size: 10.5px;
+            line-height: 1.25;
+            letter-spacing: .055em;
+        }
+
+        .mobile-title {
+            margin-top: 10px;
+            max-width: 420px;
+            font-size: clamp(34px, 4.3vw, 50px);
+            line-height: 1.02;
+            letter-spacing: -1.7px;
+        }
+
+        .mobile-subtitle {
+            max-width: 430px;
+            margin-top: 16px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .mobile-form-area {
+            min-width: 0;
+            padding: clamp(34px, 5vw, 66px);
+            display: flex;
+            align-items: center;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(216,27,156,.05), transparent 32%),
+                linear-gradient(180deg, #FFFFFF, #FFFBFE);
+        }
+
+        .form-panel {
+            width: 100%;
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        .form-panel.active {
+            animation: aliadaPanelIn .25s ease both;
+        }
+
+        @keyframes aliadaPanelIn {
+            from { opacity: 0; transform: translateY(7px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-head {
+            margin-bottom: 24px;
+        }
+
+        .panel-head h2 {
+            font-size: clamp(27px, 3vw, 34px);
+            line-height: 1.08;
+            letter-spacing: -1px;
+        }
+
+        .panel-head p {
+            margin-top: 9px;
+            font-size: 14px;
+        }
+
+        .field {
+            margin-bottom: 17px;
+        }
+
+        .label {
+            margin-bottom: 8px;
+            font-size: 13px;
+            letter-spacing: .01em;
+        }
+
+        .input,
+        .select {
+            height: 56px;
+            border-width: 1.5px;
+            border-color: rgba(123,31,162,.15);
+            border-radius: 17px;
+            background: #FFFCFE;
+            padding: 0 16px;
+            font-size: 16px;
+            box-shadow: 0 7px 18px rgba(74, 14, 99, .035);
+        }
+
+        .input:hover,
+        .select:hover {
+            border-color: rgba(216,27,156,.28);
+            background: #FFFFFF;
+        }
+
+        .input:focus,
+        .select:focus {
+            border-color: var(--aliada-fucsia);
+            background: #FFFFFF;
+            box-shadow:
+                0 0 0 4px rgba(216,27,156,.10),
+                0 10px 24px rgba(123,31,162,.055);
+        }
+
+        .login-input-shell,
+        .login-password-wrap {
+            position: relative;
+        }
+
+        .login-leading-icon {
+            position: absolute;
+            z-index: 3;
+            left: 16px;
+            top: 50%;
+            width: 40px;
+            height: 40px;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--aliada-fucsia-dark);
+            border-radius: 13px;
+            background: linear-gradient(135deg, rgba(252,231,243,.94), rgba(243,232,255,.94));
+            pointer-events: none;
+        }
+
+        .login-leading-icon .ui-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .login-input {
+            padding-left: 66px;
+        }
+
+        .login-password-wrap .login-input {
+            padding-right: 62px;
+        }
+
+        .password-wrap .input {
+            padding-right: 62px;
+        }
+
+        .toggle-password {
+            right: 8px;
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            color: #8F5299;
+            background: transparent;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition:
+                color .18s ease,
+                background .18s ease,
+                border-color .18s ease,
+                transform .18s ease,
+                box-shadow .18s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .toggle-password:hover {
+            color: var(--aliada-fucsia-dark);
+            background: #FFF0F9;
+            border-color: rgba(216,27,156,.10);
+        }
+
+        .toggle-password:active {
+            transform: translateY(-50%) scale(.94);
+        }
+
+        .toggle-password:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(216,27,156,.15);
+        }
+
+        .toggle-password .eye-off {
+            display: none;
+        }
+
+        .toggle-password.password-visible .eye-on {
+            display: none;
+        }
+
+        .toggle-password.password-visible .eye-off {
+            display: block;
+        }
+
+        .remember-row {
+            margin: 2px 0 20px;
+            font-size: 12.8px;
+        }
+
+        .check-wrap {
+            gap: 9px;
+        }
+
+        .check-wrap input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+
+        .inline-link {
+            padding: 8px 3px;
+        }
+
+        .btn-main {
+            height: 56px;
+            border-radius: 17px;
+            font-size: 15.5px;
+            letter-spacing: .01em;
+            box-shadow: 0 16px 34px rgba(216,27,156,.24);
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+        }
+
+        .btn-main:hover {
+            transform: translateY(-1px);
+            filter: saturate(1.05);
+            box-shadow: 0 19px 38px rgba(216,27,156,.29);
+        }
+
+        .btn-main:active {
+            transform: translateY(0) scale(.992);
+        }
+
+        .switch-text {
+            margin-top: 20px;
+        }
+
+        .note-box {
+            margin-top: 18px;
+            padding: 14px 15px;
+        }
+
+        .account-management {
+            margin-top: 18px;
+        }
+
+        /* El registro conserva el mismo flujo, con mejor espacio táctil. */
+        #panelRegistro .form-panel,
+        #panelRegistro {
+            max-width: 580px;
+        }
+
+        #panelRegistro .register-scroll {
+            max-height: min(61dvh, 620px);
+            padding: 2px 8px 2px 1px;
+        }
+
+        #panelRegistro .password-wrap .input {
+            padding-right: 62px;
+        }
+
+        /* Onboarding: iconos siempre visibles, tarjetas más limpias. */
+        .aliada-feature-item {
+            align-items: center;
+            min-height: 60px;
+            padding: 12px 13px;
+            border-color: rgba(216,27,156,.13);
+            box-shadow: 0 8px 22px rgba(74,14,99,.05);
+        }
+
+        .aliada-feature-icon {
+            width: 40px;
+            height: 40px;
+            flex-basis: 40px;
+            border-radius: 13px;
+            color: #B31183;
+            border: 1px solid rgba(216,27,156,.08);
+        }
+
+        .aliada-feature-text {
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .aliada-onboarding-shield {
+            font-size: 0;
+        }
+
+        /* =========================
+           TABLET
+        ========================= */
+        @media (min-width: 700px) and (max-width: 1024px) {
+            .mobile-login-page {
+                padding: 22px;
+            }
+
+            .mobile-card {
+                width: min(100%, 900px);
+                min-height: 610px;
+                grid-template-columns: .82fr 1.18fr;
+                border-radius: 32px;
+            }
+
+            .mobile-hero {
+                padding: 36px 32px;
+            }
+
+            .logo-box {
+                width: 148px;
+                height: 72px;
+            }
+
+            .mobile-title {
+                font-size: clamp(34px, 5vw, 43px);
+            }
+
+            .mobile-form-area {
+                padding: 42px 38px;
+            }
+
+            .form-panel {
+                max-width: 460px;
+            }
+
+            #panelRegistro .register-scroll {
+                max-height: 61dvh;
+            }
+
+            .aliada-onboarding-card {
+                max-width: 650px;
+                height: min(860px, calc(100dvh - 36px));
+                border-radius: 34px;
+            }
+
+            .aliada-onboarding-top {
+                padding: 25px 28px 23px;
+            }
+
+            .aliada-onboarding-body {
+                padding: 22px 28px 0;
+            }
+
+            .aliada-onboarding-actions {
+                margin-left: -28px;
+                margin-right: -28px;
+                padding-left: 28px;
+                padding-right: 28px;
+            }
+        }
+
+        /* =========================
+           CELULAR
+        ========================= */
+        @media (max-width: 699px) {
+            html,
+            body {
+                background: #FFFFFF;
+            }
+
+            .mobile-login-page {
+                min-height: 100svh;
+                padding: 0;
+                align-items: stretch;
+            }
+
+            .mobile-card {
+                width: 100%;
+                max-width: none;
+                min-height: 100svh;
+                display: flex;
+                flex-direction: column;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .mobile-hero {
+                min-height: auto;
+                padding:
+                    calc(22px + env(safe-area-inset-top))
+                    21px
+                    28px;
+                border-radius: 0 0 30px 30px;
+                justify-content: flex-start;
+            }
+
+            .mobile-hero::after {
+                width: 155px;
+                height: 155px;
+                top: -65px;
+                right: -62px;
+            }
+
+            .mobile-hero::before {
+                width: 145px;
+                height: 145px;
+                left: -72px;
+                bottom: -74px;
+            }
+
+            .logo-box {
+                width: 126px;
+                height: 62px;
+                padding: 9px 13px;
+                margin-bottom: 18px;
+                border-radius: 21px;
+            }
+
+            .logo-box img {
+                max-height: 43px;
+            }
+
+            .mobile-badge {
+                padding: 7px 10px;
+                margin-bottom: 7px;
+                font-size: 9.7px;
+            }
+
+            .mobile-title {
+                margin-top: 7px;
+                font-size: clamp(29px, 9vw, 37px);
+                line-height: 1.02;
+                letter-spacing: -1.25px;
+            }
+
+            .mobile-subtitle {
+                margin-top: 11px;
+                font-size: 13.2px;
+                line-height: 1.48;
+            }
+
+            .mobile-form-area {
+                flex: 1 1 auto;
+                display: block;
+                padding:
+                    28px
+                    20px
+                    calc(24px + env(safe-area-inset-bottom));
+            }
+
+            .form-panel {
+                max-width: none;
+            }
+
+            .panel-head {
+                margin-bottom: 21px;
+            }
+
+            .panel-head h2 {
+                font-size: 27px;
+            }
+
+            .panel-head p {
+                font-size: 13px;
+            }
+
+            .input,
+            .select {
+                height: 55px;
+                font-size: 16px; /* evita zoom automático en iOS */
+            }
+
+            .login-leading-icon {
+                left: 8px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .login-input {
+                padding-left: 58px;
+            }
+
+            .toggle-password {
+                width: 42px;
+                height: 42px;
+            }
+
+            .remember-row {
+                gap: 8px;
+            }
+
+            .btn-main {
+                height: 56px;
+                font-size: 15px;
+            }
+
+            #panelRegistro .register-scroll {
+                max-height: none;
+                overflow: visible;
+                padding-right: 0;
+            }
+
+            #panelRegistro .mobile-form-area {
+                overflow: visible;
+            }
+
+            .account-management small {
+                max-width: 300px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .aliada-onboarding-overlay {
+                padding: 8px;
+            }
+
+            .aliada-onboarding-card {
+                max-height: calc(100svh - 16px);
+            }
+        }
+
+        @media (max-width: 390px) {
+            .mobile-hero {
+                padding:
+                    calc(18px + env(safe-area-inset-top))
+                    17px
+                    23px;
+                border-radius: 0 0 25px 25px;
+            }
+
+            .mobile-form-area {
+                padding:
+                    24px
+                    17px
+                    calc(20px + env(safe-area-inset-bottom));
+            }
+
+            .mobile-title {
+                font-size: 29px;
+            }
+
+            .mobile-subtitle {
+                font-size: 12.8px;
+            }
+
+            .input,
+            .select,
+            .btn-main {
+                height: 54px;
+            }
+
+            .remember-row {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .remember-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .inline-link {
+                padding-left: 0;
+            }
+        }
+
+    
+        /* =========================================================
+           LOGIN ALIADA UTS - AJUSTE FINAL RESPONSIVE
+           Prioridad: iPad/tablet + iPhone/celular
+           Solo diseño. No modifica lógica ni funcionalidad.
+        ========================================================= */
+
+        .mobile-login-page {
+            min-height: 100dvh !important;
+            padding:
+                max(14px, env(safe-area-inset-top))
+                max(14px, env(safe-area-inset-right))
+                max(16px, env(safe-area-inset-bottom))
+                max(14px, env(safe-area-inset-left)) !important;
+            display: flex !important;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start !important;
+            gap: 10px;
+        }
+
+        .mobile-card {
+            width: min(100%, 980px) !important;
+            max-width: 980px !important;
+            min-height: 0 !important;
+            margin: 0 auto !important;
+            overflow: hidden;
+            border-radius: 28px !important;
+            background: rgba(255,255,255,.98) !important;
+            border: 1px solid rgba(87, 39, 98, .10) !important;
+            box-shadow:
+                0 22px 54px rgba(69,20,83,.16),
+                0 8px 22px rgba(216,27,156,.05) !important;
+        }
+
+        .mobile-hero {
+            min-height: 0 !important;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(255,255,255,.16), transparent 11rem),
+                linear-gradient(135deg, #F64FBA 0%, #E51C9B 48%, #941BA8 100%) !important;
+            color: #fff;
+        }
+
+        .logo-box {
+            margin: 0 !important;
+        }
+
+        .mobile-badge {
+            color: #fff !important;
+            border-color: rgba(255,255,255,.28) !important;
+            background: rgba(255,255,255,.15) !important;
+        }
+
+        .mobile-title {
+            color: #fff !important;
+        }
+
+        .mobile-title span {
+            color: #FFE0F3 !important;
+        }
+
+        .mobile-subtitle {
+            color: rgba(255,255,255,.92) !important;
+        }
+
+        .mobile-form-area {
+            min-width: 0;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(216,27,156,.035), transparent 28%),
+                #FFFFFF !important;
+        }
+
+        .panel-head h2,
+        .label,
+        .switch-text,
+        .account-management,
+        .note-box {
+            color: #171219 !important;
+        }
+
+        .panel-head p,
+        .account-management small {
+            color: #655B68 !important;
+        }
+
+        .panel-head {
+            margin-bottom: 18px !important;
+        }
+
+        .panel-head h2 {
+            font-size: clamp(25px, 3vw, 31px) !important;
+            line-height: 1.05 !important;
+            letter-spacing: -.8px !important;
+        }
+
+        .panel-head p {
+            margin-top: 6px !important;
+            font-size: 13px !important;
+        }
+
+        .field {
+            margin-bottom: 14px !important;
+        }
+
+        .label {
+            margin-bottom: 7px !important;
+            font-size: 12.5px !important;
+            font-weight: 850 !important;
+        }
+
+        .input,
+        .select {
+            height: 52px !important;
+            border-radius: 15px !important;
+            border: 1.5px solid rgba(123,31,162,.14) !important;
+            background: #FFFCFE !important;
+            color: #171219 !important;
+            font-size: 16px !important;
+        }
+
+        .input::placeholder,
+        .select::placeholder {
+            color: #7B707E !important;
+            opacity: 1;
+        }
+
+        .login-leading-icon {
+            left: 7px !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 12px !important;
+        }
+
+        .login-leading-icon .ui-icon {
+            width: 19px !important;
+            height: 19px !important;
+        }
+
+        .login-input {
+            padding-left: 55px !important;
+        }
+
+        .login-password-wrap .login-input,
+        .password-wrap .input {
+            padding-right: 58px !important;
+        }
+
+        .toggle-password {
+            right: 6px !important;
+            width: 40px !important;
+            height: 40px !important;
+            border-radius: 12px !important;
+            color: #9C3E92 !important;
+        }
+
+        .remember-row {
+            margin: 1px 0 16px !important;
+            color: #5D5361 !important;
+            font-size: 12px !important;
+        }
+
+        .check-wrap input[type="checkbox"] {
+            width: 17px !important;
+            height: 17px !important;
+            accent-color: #D81B9C;
+        }
+
+        .inline-link,
+        .switch-text a {
+            color: #B41483 !important;
+            font-weight: 900 !important;
+        }
+
+        .btn-main {
+            height: 52px !important;
+            border-radius: 15px !important;
+            font-size: 15px !important;
+            font-weight: 900 !important;
+            box-shadow: 0 12px 26px rgba(216,27,156,.20) !important;
+        }
+
+        .switch-text {
+            margin-top: 15px !important;
+            font-size: 12.5px !important;
+        }
+
+        .account-management {
+            margin-top: 14px !important;
+            padding-top: 13px;
+            border-top: 1px solid rgba(87,39,98,.08);
+        }
+
+        .delete-account-link {
+            min-height: 43px !important;
+            padding: 9px 14px !important;
+            border-radius: 13px !important;
+            font-size: 12px !important;
+        }
+
+        .account-management small {
+            margin-top: 5px !important;
+            font-size: 10px !important;
+        }
+
+        .note-box {
+            margin-top: 12px !important;
+            padding: 10px 12px !important;
+            border-radius: 12px !important;
+            font-size: 10.5px !important;
+            line-height: 1.4 !important;
+        }
+
+        .login-footer {
+            width: min(100%, 980px);
+            margin: 0 auto;
+            padding: 2px 12px 0;
+            color: #625967;
+            text-align: center;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+        .login-footer p {
+            margin: 0;
+        }
+
+        .login-footer strong {
+            color: #171219;
+            font-weight: 900;
+        }
+
+        /* =========================================================
+           iPAD / TABLET VERTICAL
+           Hero horizontal y mucho más bajo.
+        ========================================================= */
+        @media (min-width: 700px) and (orientation: portrait) {
+            .mobile-login-page {
+                padding:
+                    calc(18px + env(safe-area-inset-top))
+                    calc(22px + env(safe-area-inset-right))
+                    calc(16px + env(safe-area-inset-bottom))
+                    calc(22px + env(safe-area-inset-left)) !important;
+            }
+
+            .mobile-card {
+                width: min(100%, 820px) !important;
+                display: block !important;
+                border-radius: 28px !important;
+            }
+
+            .mobile-hero {
+                height: auto !important;
+                min-height: 190px !important;
+                padding: 20px 26px !important;
+                display: grid !important;
+                grid-template-columns: 128px minmax(0, 1fr) !important;
+                grid-template-rows: auto auto auto auto !important;
+                column-gap: 22px !important;
+                row-gap: 5px !important;
+                align-items: center !important;
+                justify-content: initial !important;
+                border-radius: 0 !important;
+            }
+
+            .mobile-hero::before {
+                width: 150px !important;
+                height: 150px !important;
+                left: -78px !important;
+                bottom: -88px !important;
+            }
+
+            .mobile-hero::after {
+                width: 165px !important;
+                height: 165px !important;
+                right: -68px !important;
+                top: -80px !important;
+            }
+
+            .logo-box {
+                grid-column: 1 !important;
+                grid-row: 1 / 5 !important;
+                width: 128px !important;
+                height: 66px !important;
+                align-self: center !important;
+                border-radius: 20px !important;
+                box-shadow: 0 10px 24px rgba(74,14,99,.16) !important;
+            }
+
+            .logo-box img {
+                max-height: 43px !important;
+            }
+
+            .mobile-badge {
+                grid-column: 2 !important;
+                width: fit-content !important;
+                padding: 5px 9px !important;
+                margin: 0 !important;
+                font-size: 8.2px !important;
+                line-height: 1.15 !important;
+            }
+
+            .mobile-title {
+                grid-column: 2 !important;
+                max-width: 510px !important;
+                margin: 4px 0 0 !important;
+                font-size: clamp(27px, 4.3vw, 36px) !important;
+                line-height: .98 !important;
+                letter-spacing: -1.15px !important;
+            }
+
+            .mobile-subtitle {
+                grid-column: 2 !important;
+                max-width: 540px !important;
+                margin: 4px 0 0 !important;
+                font-size: 11.8px !important;
+                line-height: 1.38 !important;
+            }
+
+            .mobile-form-area {
+                padding: 25px 34px 22px !important;
+                display: block !important;
+            }
+
+            .form-panel {
+                max-width: 560px !important;
+                margin: 0 auto !important;
+            }
+
+            #panelRegistro {
+                max-width: 620px !important;
+            }
+
+            #panelRegistro .register-scroll {
+                max-height: 54dvh !important;
+            }
+
+            .login-footer {
+                width: min(100%, 820px);
+                padding-top: 5px;
+            }
+        }
+
+        /* =========================================================
+           iPAD / TABLET HORIZONTAL
+           Dos columnas compactas para aprovechar ancho.
+        ========================================================= */
+        @media (min-width: 900px) and (orientation: landscape) {
+            .mobile-login-page {
+                justify-content: center !important;
+            }
+
+            .mobile-card {
+                width: min(100%, 1000px) !important;
+                display: grid !important;
+                grid-template-columns: minmax(310px, .72fr) minmax(470px, 1.28fr) !important;
+                align-items: stretch !important;
+            }
+
+            .mobile-hero {
+                min-height: 590px !important;
+                padding: 30px 28px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                border-radius: 0 !important;
+            }
+
+            .logo-box {
+                width: 126px !important;
+                height: 64px !important;
+                margin-bottom: 18px !important;
+            }
+
+            .logo-box img {
+                max-height: 42px !important;
+            }
+
+            .mobile-badge {
+                padding: 5px 9px !important;
+                margin-bottom: 6px !important;
+                font-size: 8px !important;
+            }
+
+            .mobile-title {
+                max-width: 330px !important;
+                margin-top: 7px !important;
+                font-size: clamp(29px, 3.2vw, 38px) !important;
+            }
+
+            .mobile-subtitle {
+                max-width: 340px !important;
+                margin-top: 10px !important;
+                font-size: 12px !important;
+                line-height: 1.42 !important;
+            }
+
+            .mobile-form-area {
+                padding: 32px 42px !important;
+                display: flex !important;
+                align-items: center !important;
+            }
+
+            .form-panel {
+                max-width: 500px !important;
+            }
+
+            #panelRegistro .register-scroll {
+                max-height: 66dvh !important;
+            }
+
+            .login-footer {
+                width: min(100%, 1000px);
+            }
+        }
+
+        /* =========================================================
+           CELULAR / iPHONE
+        ========================================================= */
+        @media (max-width: 699px) {
+            .mobile-login-page {
+                padding:
+                    calc(7px + env(safe-area-inset-top))
+                    calc(7px + env(safe-area-inset-right))
+                    calc(10px + env(safe-area-inset-bottom))
+                    calc(7px + env(safe-area-inset-left)) !important;
+                gap: 6px !important;
+            }
+
+            .mobile-card {
+                width: 100% !important;
+                display: block !important;
+                border: 0 !important;
+                border-radius: 20px !important;
+                box-shadow: 0 12px 34px rgba(69,20,83,.11) !important;
+            }
+
+            .mobile-hero {
+                min-height: 0 !important;
+                padding: 12px 14px 13px !important;
+                display: grid !important;
+                grid-template-columns: 78px minmax(0, 1fr) !important;
+                grid-template-rows: auto auto auto auto !important;
+                column-gap: 10px !important;
+                row-gap: 3px !important;
+                border-radius: 0 !important;
+            }
+
+            .mobile-hero::after {
+                width: 120px !important;
+                height: 120px !important;
+                top: -58px !important;
+                right: -54px !important;
+            }
+
+            .mobile-hero::before {
+                width: 95px !important;
+                height: 95px !important;
+                left: -50px !important;
+                bottom: -52px !important;
+            }
+
+            .logo-box {
+                grid-column: 1 !important;
+                grid-row: 1 / 5 !important;
+                width: 78px !important;
+                height: 43px !important;
+                align-self: center !important;
+                padding: 5px 7px !important;
+                border-radius: 13px !important;
+                box-shadow: 0 8px 18px rgba(74,14,99,.14) !important;
+            }
+
+            .logo-box img {
+                max-height: 26px !important;
+            }
+
+            .mobile-badge {
+                grid-column: 2 !important;
+                width: fit-content !important;
+                max-width: 100% !important;
+                padding: 4px 7px !important;
+                margin: 0 !important;
+                font-size: 6.8px !important;
+                line-height: 1.12 !important;
+                white-space: normal !important;
+            }
+
+            .mobile-title {
+                grid-column: 2 !important;
+                max-width: 245px !important;
+                margin: 3px 0 0 !important;
+                font-size: clamp(19px, 6.3vw, 24px) !important;
+                line-height: .98 !important;
+                letter-spacing: -.75px !important;
+            }
+
+            .mobile-subtitle {
+                grid-column: 2 !important;
+                max-width: 280px !important;
+                margin: 3px 0 0 !important;
+                font-size: 9.6px !important;
+                line-height: 1.28 !important;
+            }
+
+            .mobile-form-area {
+                padding:
+                    20px
+                    16px
+                    calc(16px + env(safe-area-inset-bottom)) !important;
+                display: block !important;
+            }
+
+            .panel-head {
+                margin-bottom: 16px !important;
+            }
+
+            .panel-head h2 {
+                font-size: 24px !important;
+            }
+
+            .panel-head p {
+                font-size: 12px !important;
+            }
+
+            .input,
+            .select {
+                height: 50px !important;
+            }
+
+            .login-leading-icon {
+                width: 36px !important;
+                height: 36px !important;
+            }
+
+            .login-input {
+                padding-left: 52px !important;
+            }
+
+            .toggle-password {
+                width: 38px !important;
+                height: 38px !important;
+            }
+
+            .btn-main {
+                height: 50px !important;
+            }
+
+            .note-box {
+                display: none !important;
+            }
+
+            #panelRegistro .register-scroll {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            .login-footer {
+                width: 100%;
+                padding: 2px 8px 0;
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .mobile-hero {
+                grid-template-columns: 68px minmax(0,1fr) !important;
+                padding-left: 11px !important;
+                padding-right: 11px !important;
+            }
+
+            .logo-box {
+                width: 68px !important;
+                height: 39px !important;
+            }
+
+            .logo-box img {
+                max-height: 23px !important;
+            }
+
+            .mobile-title {
+                font-size: 18px !important;
+            }
+
+            .mobile-subtitle {
+                font-size: 9.2px !important;
+            }
+
+            .remember-row {
+                font-size: 11.2px !important;
+            }
+        }
+
     </style>
 </head>
 
@@ -1265,7 +2496,7 @@ function errorText($key)
                         </div>
 
                         <div class="aliada-onboarding-shield" aria-hidden="true">
-                            <i class="fas fa-shield-alt"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
                         </div>
                     </div>
 
@@ -1312,7 +2543,7 @@ function errorText($key)
                             onclick="cambiarPasoOnboarding(2)"
                         >
                             Comenzar
-                            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
                         </button>
                     </div>
 
@@ -1337,37 +2568,37 @@ function errorText($key)
 
                     <div class="aliada-feature-list">
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-bell"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
                             <div class="aliada-feature-text">Activar un botón de pánico.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-user-shield"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8l3 1v3c0 2.5-1.5 4.5-3 5.5-1.5-1-3-3-3-5.5V9l3-1Z"/></svg></div>
                             <div class="aliada-feature-text">Contactar rápidamente a un familiar o persona de confianza.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-robot"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M9 3h6"/><path d="M12 3v4"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 16h8"/></svg></div>
                             <div class="aliada-feature-text">Acceder a orientación inicial mediante inteligencia artificial.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-balance-scale"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M5 6h14"/><path d="M5 6 2 12h6L5 6Z"/><path d="m19 6-3 6h6l-3-6Z"/><path d="M8 21h8"/></svg></div>
                             <div class="aliada-feature-text">Recibir información jurídica sobre violencia contra la mujer.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-folder-open"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6Z"/><path d="M3 10h18"/></svg></div>
                             <div class="aliada-feature-text">Registrar y almacenar evidencias de manera organizada.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-map-signs"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="M6 5h11l2 2-2 2H6V5Z"/><path d="M18 12H7l-2 2 2 2h11v-4Z"/></svg></div>
                             <div class="aliada-feature-text">Consultar rutas institucionales de atención.</div>
                         </div>
 
                         <div class="aliada-feature-item">
-                            <div class="aliada-feature-icon"><i class="fas fa-phone-volume"></i></div>
+                            <div class="aliada-feature-icon"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.63a2 2 0 0 1-.45 2.11L8 9.73a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.85.29 1.73.5 2.63.62A2 2 0 0 1 22 16.92Z"/></svg></div>
                             <div class="aliada-feature-text">Facilitar la comunicación con las autoridades cuando sea necesario.</div>
                         </div>
                     </div>
@@ -1395,7 +2626,7 @@ function errorText($key)
                             class="aliada-btn-secondary"
                             onclick="cambiarPasoOnboarding(1)"
                         >
-                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
                             Volver
                         </button>
 
@@ -1405,7 +2636,7 @@ function errorText($key)
                             onclick="cambiarPasoOnboarding(3)"
                         >
                             Continuar
-                            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
                         </button>
                     </div>
                 </div>
@@ -1451,7 +2682,7 @@ function errorText($key)
                             class="aliada-btn-secondary"
                             onclick="cambiarPasoOnboarding(2)"
                         >
-                            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
                             Volver
                         </button>
 
@@ -1460,7 +2691,7 @@ function errorText($key)
                             class="aliada-btn-primary"
                             onclick="finalizarOnboardingAliada()"
                         >
-                            <i class="fas fa-user-plus" aria-hidden="true"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M16 11h6"/></svg>
                             Crear mi cuenta
                         </button>
                     </div>
@@ -1504,33 +2735,42 @@ function errorText($key)
                             <p>Accede con tu usuario y contraseña.</p>
                         </div>
 
-                        <div class="field">
+                        <div class="field login-field">
                             <label class="label" for="nickname">Usuario</label>
-                            <input
-                                type="text"
-                                class="input"
-                                id="nickname"
-                                name="nickname"
-                                placeholder="Ingresa tu usuario"
-                                autocomplete="username"
-                                required
-                            >
+                            <div class="login-input-shell">
+                                <span class="login-leading-icon">
+                                    <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="input login-input"
+                                    id="nickname"
+                                    name="nickname"
+                                    placeholder="Ingresa tu usuario"
+                                    autocomplete="username"
+                                    required
+                                >
+                            </div>
                         </div>
 
-                        <div class="field">
+                        <div class="field login-field">
                             <label class="label" for="hashpass">Contraseña</label>
-                            <div class="password-wrap">
+                            <div class="password-wrap login-password-wrap">
+                                <span class="login-leading-icon">
+                                    <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                                </span>
                                 <input
                                     type="password"
-                                    class="input"
+                                    class="input login-input"
                                     id="hashpass"
                                     name="hashpass"
                                     placeholder="Ingresa tu contraseña"
                                     autocomplete="current-password"
                                     required
                                 >
-                                <button type="button" class="toggle-password" data-target="hashpass" aria-label="Mostrar contraseña">
-                                    <i class="fas fa-eye"></i>
+                                <button type="button" class="toggle-password" data-target="hashpass" aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <svg class="ui-icon eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="ui-icon eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a18.8 18.8 0 0 1-2.1 3.2"/><path d="M6.6 6.6C3.5 8.5 2 12 2 12s3.5 8 10 8a10.5 10.5 0 0 0 5.4-1.5"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -1545,7 +2785,7 @@ function errorText($key)
                         </div>
 
                         <button type="submit" class="btn-main">
-                            <i class="fas fa-arrow-right"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
                             Ingresar
                         </button>
 
@@ -1560,7 +2800,7 @@ function errorText($key)
                                 href="delete.php"
                                 aria-label="Ir a la opción para eliminar mi cuenta"
                             >
-                                <i class="fas fa-user-times" aria-hidden="true"></i>
+                                <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m17 8 5 5"/><path d="m22 8-5 5"/></svg>
                                 Eliminar mi cuenta
                             </a>
                             <small>Por seguridad, debes haber iniciado sesión.</small>
@@ -1668,9 +2908,10 @@ function errorText($key)
                                 <label class="label" for="reg_password">Contraseña</label>
                                 <div class="password-wrap">
                                     <input type="password" class="input <?= hasError('password') ? 'input-error' : '' ?>" id="reg_password" name="password" placeholder="Mín. 8, mayúscula, minúscula y número" required data-parsley-minlength="8" data-parsley-minlength-message="Mínimo 8 caracteres." data-parsley-pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$" data-parsley-pattern-message="Debe incluir mayúscula, minúscula y un número." data-parsley-required-message="La contraseña es obligatoria." data-parsley-trigger="blur">
-                                    <button type="button" class="toggle-password" data-target="reg_password" aria-label="Mostrar contraseña">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <button type="button" class="toggle-password" data-target="reg_password" aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <svg class="ui-icon eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="ui-icon eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a18.8 18.8 0 0 1-2.1 3.2"/><path d="M6.6 6.6C3.5 8.5 2 12 2 12s3.5 8 10 8a10.5 10.5 0 0 0 5.4-1.5"/></svg>
+                                </button>
                                 </div>
                                 <?php if (hasError('password')): ?><span class="error-message"><?= errorText('password') ?></span><?php endif; ?>
                             </div>
@@ -1679,9 +2920,10 @@ function errorText($key)
                                 <label class="label" for="reg_password2">Confirmar contraseña</label>
                                 <div class="password-wrap">
                                     <input type="password" class="input <?= hasError('password_confirmacion') ? 'input-error' : '' ?>" id="reg_password2" name="password_confirmacion" placeholder="Repite la contraseña" required data-parsley-equalto="#reg_password" data-parsley-equalto-message="Las contraseñas no coinciden." data-parsley-required-message="Debes confirmar la contraseña." data-parsley-trigger="blur">
-                                    <button type="button" class="toggle-password" data-target="reg_password2" aria-label="Mostrar contraseña">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <button type="button" class="toggle-password" data-target="reg_password2" aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <svg class="ui-icon eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="ui-icon eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 3 18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 4.2A10.7 10.7 0 0 1 12 4c6.5 0 10 8 10 8a18.8 18.8 0 0 1-2.1 3.2"/><path d="M6.6 6.6C3.5 8.5 2 12 2 12s3.5 8 10 8a10.5 10.5 0 0 0 5.4-1.5"/></svg>
+                                </button>
                                 </div>
                                 <?php if (hasError('password_confirmacion')): ?><span class="error-message"><?= errorText('password_confirmacion') ?></span><?php endif; ?>
                             </div>
@@ -1718,13 +2960,13 @@ function errorText($key)
                         </div>
 
                         <button type="submit" class="btn-main">
-                            <i class="fas fa-user-plus"></i>
+                            <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M16 11h6"/></svg>
                             Crear cuenta
                         </button>
 
                         <div style="margin-top: 12px;">
                             <button type="button" class="btn-outline-mobile" onclick="mostrarPanel('login')">
-                                <i class="fas fa-arrow-left"></i>
+                                <svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m11 18-6-6 6-6"/></svg>
                                 Ya tengo cuenta
                             </button>
                         </div>
@@ -1733,6 +2975,13 @@ function errorText($key)
 
             </div>
         </section>
+
+        <footer class="login-footer" aria-label="Información institucional">
+            <p>
+                © <?= date('Y'); ?> <strong>Aliada UTS</strong>
+                · Desarrollado por <strong>SpiderSoftware S.A.S.</strong>
+            </p>
+        </footer>
     </main>
 
     <script src="assets/js/vendor-all.min.js"></script>
@@ -1882,24 +3131,23 @@ function errorText($key)
 
             const targetId = btn.getAttribute('data-target');
             const input = document.getElementById(targetId);
-            const icon = btn.querySelector('i');
 
             if (!input) return;
 
-            if (input.type === 'password') {
-                input.type = 'text';
+            const mostrar = input.type === 'password';
+            input.type = mostrar ? 'text' : 'password';
 
-                if (icon) {
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                }
-            } else {
-                input.type = 'password';
+            btn.classList.toggle('password-visible', mostrar);
+            btn.setAttribute('aria-pressed', mostrar ? 'true' : 'false');
+            btn.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
 
-                if (icon) {
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
+            // Conserva el foco en el campo y el cursor al final.
+            try {
+                input.focus({ preventScroll: true });
+                const largo = input.value.length;
+                input.setSelectionRange(largo, largo);
+            } catch (err) {
+                input.focus();
             }
         });
 

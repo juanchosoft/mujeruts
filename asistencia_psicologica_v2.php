@@ -112,78 +112,319 @@ $saludoBienvenida =
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="assets/css/asistencia_psicologica.css?v=<?= time(); ?>" rel="stylesheet">
+    <!-- Vista autocontenida: el layout responsive se controla aquí para iPad/tablet/iPhone. -->
 
     <style>
-        /*
-        |--------------------------------------------------------------------------
-        | BOTONES DE CONTROL DE VOZ (micrófono / parlante)
-        |--------------------------------------------------------------------------
-        */
-        .info-strip {
-            display: flex;
-            align-items: center;
+        :root {
+            --aliada-pink: #E51C9B;
+            --aliada-pink-dark: #B41483;
+            --aliada-purple: #8E1AA7;
+            --aliada-purple-dark: #4A0D60;
+            --aliada-text: #111111;
+            --aliada-muted: #514855;
+            --aliada-white: #FFFFFF;
+            --aliada-bg: #FBF8FC;
+            --aliada-border: rgba(77, 31, 88, .12);
+            --aliada-gradient: linear-gradient(135deg, #F64FBA 0%, #E51C9B 46%, #8E1AA7 100%);
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            width: 100%;
+            min-height: 100%;
+            -webkit-text-size-adjust: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            width: 100%;
+            min-width: 320px;
+            min-height: 100vh;
+            min-height: 100svh;
+            min-height: 100dvh;
+            margin: 0;
+            overflow-x: hidden;
+            color: var(--aliada-text);
+            background:
+                radial-gradient(circle at 10% -5%, rgba(229, 28, 155, .10), transparent 31rem),
+                radial-gradient(circle at 100% 20%, rgba(142, 26, 167, .08), transparent 31rem),
+                linear-gradient(180deg, #FBF7FC 0%, #FFFFFF 58%, #FAF7FB 100%);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        button,
+        a {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        /* =========================================================
+           ESTRUCTURA GENERAL - CHAT FIRST
+        ========================================================= */
+        .app-chat-mobile {
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100svh;
+            min-height: 100dvh;
+            padding:
+                calc(14px + var(--safe-top))
+                calc(16px + var(--safe-right))
+                calc(18px + var(--safe-bottom))
+                calc(16px + var(--safe-left));
+        }
+
+        .mobile-shell {
+            width: min(100%, 1040px);
+            min-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
+            margin-inline: auto;
+            display: grid;
+            grid-template-rows: auto auto minmax(640px, 1fr) auto;
             gap: 12px;
         }
 
-        .info-copy {
-            flex: 1;
+        /* =========================================================
+           CABECERA COMPACTA
+        ========================================================= */
+        .topbar-mobile {
+            position: relative;
+            overflow: hidden;
+            border-radius: 26px;
+            background:
+                radial-gradient(circle at 98% 0%, rgba(255,255,255,.16), transparent 12rem),
+                var(--aliada-gradient);
+            box-shadow: 0 18px 42px rgba(116, 21, 132, .18);
+        }
+
+        .topbar-mobile::after {
+            content: "";
+            position: absolute;
+            width: 190px;
+            height: 190px;
+            right: -78px;
+            top: -102px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+
+        .topbar-mobile-inner {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 250px;
+            align-items: center;
+            gap: 18px;
+            padding: 17px 19px;
+        }
+
+        .brand-mobile {
             min-width: 0;
+            display: grid;
+            grid-template-columns: 100px minmax(0, 1fr);
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-mobile-logo {
+            width: 100px;
+            height: 54px;
+            padding: 7px 10px;
+            display: grid;
+            place-items: center;
+            border-radius: 17px;
+            background: #FFFFFF;
+            box-shadow: 0 9px 20px rgba(67, 12, 76, .14);
+        }
+
+        .brand-mobile-logo img {
+            display: block;
+            max-width: 100%;
+            max-height: 34px;
+            object-fit: contain;
+        }
+
+        .brand-mobile-copy {
+            min-width: 0;
+        }
+
+        .brand-mobile-eyebrow {
+            width: fit-content;
+            max-width: 100%;
+            display: block;
+            margin: 0 0 4px;
+            padding: 5px 9px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            border: 1px solid rgba(255,255,255,.30);
+            border-radius: 999px;
+            background: rgba(255,255,255,.15);
+            color: #FFFFFF;
+            font-size: 8.6px;
+            line-height: 1.15;
+            font-weight: 900;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .brand-mobile-title {
+            margin: 7px 0 0;
+            color: #FFFFFF;
+            font-size: clamp(24px, 3.4vw, 33px);
+            line-height: 1;
+            letter-spacing: -1px;
+            font-weight: 950;
+        }
+
+        .brand-mobile-title span {
+            color: #FFFFFF;
+        }
+
+        .brand-mobile-subtitle {
+            max-width: 590px;
+            margin: 7px 0 0;
+            color: rgba(255,255,255,.93);
+            font-size: 11.8px;
+            line-height: 1.38;
+            font-weight: 650;
+        }
+
+        .topbar-mobile-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .btn-mobile-top {
+            width: 100%;
+            min-height: 48px;
+            padding: 10px 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            border: 1px solid rgba(255,255,255,.32);
+            border-radius: 14px;
+            color: #FFFFFF;
+            background: rgba(255,255,255,.14);
+            text-decoration: none;
+            font-size: 12.5px;
+            font-weight: 900;
+            cursor: pointer;
+            box-shadow: 0 10px 22px rgba(63,12,72,.09);
+        }
+
+        .btn-mobile-top.white {
+            color: #7C145D;
+            background: #FFFFFF;
+            border-color: #FFFFFF;
+        }
+
+        .btn-mobile-top i {
+            font-size: 17px;
+        }
+
+        /* =========================================================
+           INFO + CONTROLES DE VOZ
+        ========================================================= */
+        .info-strip {
+            min-width: 0;
+            padding: 12px 14px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid var(--aliada-border);
+            border-radius: 19px;
+            background: rgba(255,255,255,.97);
+            box-shadow: 0 10px 28px rgba(57,20,65,.06);
+        }
+
+        .info-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: var(--aliada-pink);
+            background: linear-gradient(135deg, #FDE9F7, #F3EAFB);
+        }
+
+        .info-icon i {
+            font-size: 20px;
+        }
+
+        .info-copy {
+            min-width: 0;
+        }
+
+        .info-copy strong {
+            display: block;
+            color: #111111;
+            font-size: 13.5px;
+            line-height: 1.2;
+            font-weight: 950;
+        }
+
+        .info-copy span {
+            display: block;
+            margin-top: 4px;
+            color: #3D3540;
+            font-size: 11.2px;
+            line-height: 1.35;
         }
 
         .alma-audio-controls {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             flex-shrink: 0;
         }
 
         .alma-control-button {
             position: relative;
             isolation: isolate;
-
-            min-width: 50px;
-            height: 48px;
-            padding: 0 15px;
-
-            border: 1px solid rgba(216, 27, 156, 0.22);
+            min-width: 46px;
+            height: 44px;
+            padding: 0 12px;
+            border: 1px solid rgba(216, 27, 156, .22);
             border-radius: 999px;
-
-            background:
-                linear-gradient(#FFFFFF, #FFFFFF) padding-box,
-                linear-gradient(135deg, rgba(216, 27, 156, 0.35), rgba(155, 18, 111, 0.12)) border-box;
-
+            background: #FFFFFF;
             color: #C21888;
-
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 750;
-
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-
+            gap: 7px;
+            font-family: inherit;
+            font-size: 11.5px;
+            font-weight: 800;
             cursor: pointer;
-
             box-shadow:
-                0 7px 20px rgba(132, 20, 96, 0.11),
-                inset 0 1px 0 rgba(255, 255, 255, 0.9);
-
+                0 7px 18px rgba(132,20,96,.10),
+                inset 0 1px 0 rgba(255,255,255,.92);
             transition:
-                transform 0.2s ease,
-                color 0.2s ease,
-                background 0.2s ease,
-                box-shadow 0.2s ease;
+                transform .2s ease,
+                color .2s ease,
+                background .2s ease,
+                box-shadow .2s ease;
         }
 
         .alma-control-button i {
-            width: 20px;
-            font-size: 18px;
+            width: 18px;
+            font-size: 17px;
             line-height: 1;
             text-align: center;
-            filter: drop-shadow(0 2px 3px rgba(126, 14, 91, 0.16));
-            transition: transform 0.2s ease, filter 0.2s ease;
         }
 
         .alma-control-button::after {
@@ -194,12 +435,12 @@ $saludoBienvenida =
             border: 2px solid transparent;
             border-radius: inherit;
             opacity: 0;
-            transform: scale(0.88);
+            transform: scale(.88);
             pointer-events: none;
         }
 
         .alma-control-button:active {
-            transform: translateY(0) scale(0.98);
+            transform: scale(.98);
         }
 
         .alma-control-button.activo {
@@ -207,8 +448,8 @@ $saludoBienvenida =
             border-color: transparent;
             background: linear-gradient(135deg, #E321A4 0%, #B71382 52%, #8F0F67 100%);
             box-shadow:
-                0 10px 24px rgba(183, 19, 130, 0.28),
-                inset 0 1px 0 rgba(255, 255, 255, 0.24);
+                0 9px 22px rgba(183,19,130,.26),
+                inset 0 1px 0 rgba(255,255,255,.22);
         }
 
         .alma-control-button.escuchando {
@@ -219,49 +460,67 @@ $saludoBienvenida =
         }
 
         .alma-control-button.escuchando::after {
-            border-color: rgba(229, 35, 67, 0.38);
+            border-color: rgba(229,35,67,.38);
             animation: anilloAudio 1.15s infinite ease-out;
         }
 
         .alma-control-button.hablando::after {
-            border-color: rgba(216, 27, 156, 0.35);
+            border-color: rgba(216,27,156,.35);
             animation: anilloAudio 1.05s infinite ease-out;
         }
 
         .alma-control-button.hablando i {
-            animation: parlanteActivo 0.62s infinite alternate ease-in-out;
+            animation: parlanteActivo .62s infinite alternate ease-in-out;
         }
 
         .alma-control-button:disabled {
-            opacity: 0.5;
+            opacity: .5;
             cursor: not-allowed;
             animation: none;
         }
 
         @keyframes pulsoMicrofono {
-            0% { box-shadow: 0 0 0 0 rgba(229, 35, 67, 0.40), 0 8px 22px rgba(200, 20, 50, 0.24); }
-            70% { box-shadow: 0 0 0 12px rgba(229, 35, 67, 0), 0 8px 22px rgba(200, 20, 50, 0.24); }
-            100% { box-shadow: 0 0 0 0 rgba(229, 35, 67, 0), 0 8px 22px rgba(200, 20, 50, 0.24); }
+            0% {
+                box-shadow:
+                    0 0 0 0 rgba(229,35,67,.40),
+                    0 8px 22px rgba(200,20,50,.24);
+            }
+            70% {
+                box-shadow:
+                    0 0 0 12px rgba(229,35,67,0),
+                    0 8px 22px rgba(200,20,50,.24);
+            }
+            100% {
+                box-shadow:
+                    0 0 0 0 rgba(229,35,67,0),
+                    0 8px 22px rgba(200,20,50,.24);
+            }
         }
 
         @keyframes anilloAudio {
-            0% { opacity: 0.75; transform: scale(0.88); }
+            0% { opacity: .75; transform: scale(.88); }
             100% { opacity: 0; transform: scale(1.20); }
         }
 
         @keyframes parlanteActivo {
-            from { transform: scale(0.92) translateX(-1px); }
+            from { transform: scale(.92) translateX(-1px); }
             to { transform: scale(1.16) translateX(1px); }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHAT PROPIO (burbujas)
-        |--------------------------------------------------------------------------
-        */
+        /* =========================================================
+           CHAT PROPIO - GRANDE Y CON ALTO CONTRASTE
+        ========================================================= */
         .chat-panel {
+            min-width: 0;
+            min-height: 640px;
+            height: 100%;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--aliada-border);
+            border-radius: 24px;
+            background: #FFFFFF;
+            box-shadow: 0 18px 42px rgba(55,18,68,.10);
         }
 
         .chat-frame {
@@ -269,64 +528,78 @@ $saludoBienvenida =
             min-height: 0;
             display: flex;
             flex-direction: column;
+            background: #FBF9FC;
         }
 
         #chat-mensajes {
             flex: 1 1 auto;
             min-height: 0;
             margin: 0;
-            padding: 16px 14px;
+            padding: 20px;
             list-style: none;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 13px;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(229,28,155,.025), transparent 12rem),
+                #FBF9FC;
             -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
         .chat-mensaje {
-            max-width: 84%;
-            padding: 0.75rem 0.85rem;
-            border-radius: 16px;
-            font-size: 14.5px;
-            line-height: 1.5;
+            max-width: 78%;
+            padding: 14px 16px;
+            border-radius: 18px;
+            font-size: 16px;
+            line-height: 1.58;
+            font-weight: 450;
             white-space: pre-wrap;
             overflow-wrap: anywhere;
+            box-shadow: 0 7px 18px rgba(55,18,68,.045);
         }
 
         .chat-mensaje p {
             margin: 0;
+            color: inherit;
         }
 
         .chat-mensaje.asistente {
             align-self: flex-start;
-            background: #FCE7F3;
-            color: #2B1237;
-            border-bottom-left-radius: 4px;
+            color: #111111;
+            background: #FFFFFF;
+            border: 1px solid rgba(65,31,72,.08);
+            border-bottom-left-radius: 5px;
         }
 
         .chat-mensaje.usuaria {
             align-self: flex-end;
-            background: linear-gradient(135deg, #D81B9C, #7B1FA2);
             color: #FFFFFF;
-            border-bottom-right-radius: 4px;
+            background: linear-gradient(135deg, #D81B9C, #7B1FA2);
+            border-bottom-right-radius: 5px;
         }
 
         .chat-mensaje.sistema {
             align-self: center;
-            background: rgba(123, 31, 162, 0.08);
-            color: var(--aliada-muted);
+            max-width: 92%;
+            color: #2D2730;
+            background: rgba(123,31,162,.08);
+            border: 1px solid rgba(123,31,162,.08);
             font-size: 12.5px;
             text-align: center;
+            box-shadow: none;
         }
 
         .chat-escribiendo {
             align-self: flex-start;
             display: inline-flex;
             gap: 5px;
-            padding: 0.7rem 0.9rem;
-            border-radius: 16px;
-            background: #FCE7F3;
+            padding: .75rem .95rem;
+            border: 1px solid rgba(65,31,72,.08);
+            border-radius: 17px;
+            background: #FFFFFF;
+            box-shadow: 0 7px 18px rgba(55,18,68,.045);
         }
 
         .chat-escribiendo span {
@@ -334,153 +607,169 @@ $saludoBienvenida =
             height: 7px;
             border-radius: 999px;
             background: #B41682;
-            opacity: 0.4;
+            opacity: .4;
             animation: parpadeoPunto 1s infinite;
         }
 
-        .chat-escribiendo span:nth-child(2) { animation-delay: 0.15s; }
-        .chat-escribiendo span:nth-child(3) { animation-delay: 0.3s; }
+        .chat-escribiendo span:nth-child(2) { animation-delay: .15s; }
+        .chat-escribiendo span:nth-child(3) { animation-delay: .3s; }
 
         @keyframes parpadeoPunto {
-            0%, 100% { opacity: 0.25; transform: translateY(0); }
+            0%, 100% { opacity: .25; transform: translateY(0); }
             50% { opacity: 1; transform: translateY(-2px); }
         }
 
+        /* Acciones de emergencia conservadas y mejoradas visualmente */
         .chat-emergencia {
             align-self: stretch;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding: 12px;
-            border-radius: 16px;
-            background: rgba(220, 38, 38, 0.06);
-            border: 1px solid rgba(220, 38, 38, 0.22);
+            padding: 13px;
+            border: 1px solid rgba(220,38,38,.22);
+            border-radius: 17px;
+            background: rgba(220,38,38,.055);
         }
 
         .chat-emergencia-titulo {
+            color: #9F1717;
             font-size: 12.5px;
-            font-weight: 900;
-            color: #B91C1C;
+            font-weight: 950;
         }
 
         .chat-emergencia-boton {
+            min-height: 44px;
+            padding: 10px 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 10px 12px;
             border-radius: 12px;
             border: none;
             font-size: 13px;
-            font-weight: 800;
+            font-weight: 850;
             cursor: pointer;
             text-decoration: none;
         }
 
         .chat-emergencia-boton.policia {
-            background: #DC2626;
+            background: #C91E2E;
             color: #FFFFFF;
         }
 
         .chat-emergencia-boton.contacto {
             background: #FFFFFF;
-            color: #B91C1C;
-            border: 1px solid rgba(220, 38, 38, 0.35);
+            color: #A91827;
+            border: 1px solid rgba(220,38,38,.30);
         }
 
         .chat-emergencia-boton.evidencias {
             background: #FFFFFF;
-            color: var(--aliada-fucsia-dark);
+            color: var(--aliada-pink-dark);
             border: 1px solid var(--aliada-border);
         }
 
+        /* Input grande, fijo visualmente al pie del chat */
         .chat-input-bar {
             flex: 0 0 auto;
-            display: flex;
-            align-items: flex-end;
-            gap: 8px;
-            padding: 10px 12px;
-            border-top: 1px solid rgba(216, 27, 156, 0.12);
-            background: #FFF5FB;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 52px;
+            align-items: end;
+            gap: 9px;
+            padding: 12px 14px;
+            border-top: 1px solid rgba(216,27,156,.12);
+            background: #FFFFFF;
         }
 
         .chat-input-bar textarea {
-            flex: 1;
-            min-height: 44px;
-            max-height: 110px;
-            padding: 11px 14px;
-            border-radius: 18px;
-            border: 1px solid rgba(216, 27, 156, 0.16);
-            background: #FFFFFF;
-            color: #2B1237;
-            font-family: inherit;
-            font-size: 14px;
-            line-height: 1.4;
+            width: 100%;
+            min-height: 54px;
+            max-height: 132px;
+            padding: 14px 16px;
             resize: none;
+            border: 1.5px solid rgba(216,27,156,.16);
+            border-radius: 17px;
+            outline: none;
+            color: #111111;
+            background: #FFFFFF;
+            font-family: inherit;
+            font-size: 16px;
+            line-height: 1.45;
+            font-weight: 500;
+            caret-color: var(--aliada-pink);
+            box-shadow: inset 0 1px 2px rgba(49,14,57,.025);
         }
 
         .chat-input-bar textarea::placeholder {
-            color: #9B7AA6;
+            color: #706873;
+            opacity: 1;
         }
 
         .chat-input-bar textarea:focus {
-            outline: none;
-            border-color: rgba(216, 27, 156, 0.4);
+            border-color: rgba(216,27,156,.48);
+            box-shadow: 0 0 0 4px rgba(216,27,156,.09);
         }
 
         .btn-enviar-chat {
-            flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            border: none;
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border: 0;
             border-radius: 16px;
-            background: linear-gradient(135deg, #FF4FB8, #D81B9C, #7B1FA2);
             color: #FFFFFF;
-            font-size: 16px;
+            background: var(--aliada-gradient);
+            font-size: 17px;
             cursor: pointer;
+            box-shadow: 0 10px 22px rgba(216,27,156,.22);
         }
 
         .btn-enviar-chat:disabled {
-            opacity: 0.55;
+            opacity: .5;
             cursor: not-allowed;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | MENSAJE FLOTANTE DE ESTADO
-        |--------------------------------------------------------------------------
-        */
+        /* =========================================================
+           FOOTER
+        ========================================================= */
+        .footer-mobile {
+            padding: 2px 10px 0;
+            color: #403842;
+            text-align: center;
+            font-size: 10.5px;
+            line-height: 1.5;
+        }
+
+        .footer-mobile p {
+            margin: 0;
+        }
+
+        /* =========================================================
+           ESTADO FLOTANTE DE VOZ
+        ========================================================= */
         .alma-voice-status {
             position: fixed;
             left: 50%;
-            bottom: calc(22px + env(safe-area-inset-bottom));
+            bottom: calc(18px + var(--safe-bottom));
             z-index: 99999;
-
             max-width: calc(100vw - 30px);
             padding: 11px 17px;
-
             border-radius: 24px;
-            background: rgba(28, 28, 33, 0.95);
+            background: rgba(28,28,33,.95);
             color: #FFFFFF;
-
             font-family: inherit;
             font-size: 13px;
             font-weight: 600;
             line-height: 1.4;
             text-align: center;
-
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
-
             transform: translate(-50%, 15px);
-
             transition:
-                opacity 0.25s ease,
-                visibility 0.25s ease,
-                transform 0.25s ease;
-
-            box-shadow: 0 9px 28px rgba(0, 0, 0, 0.22);
+                opacity .25s ease,
+                visibility .25s ease,
+                transform .25s ease;
+            box-shadow: 0 9px 28px rgba(0,0,0,.22);
         }
 
         .alma-voice-status.visible {
@@ -490,14 +779,198 @@ $saludoBienvenida =
         }
 
         .alma-voice-status.error {
-            background: rgba(183, 28, 28, 0.97);
+            background: rgba(183,28,28,.97);
         }
 
-        @media (max-width: 600px) {
+        /* =========================================================
+           iPAD / TABLET VERTICAL
+        ========================================================= */
+        @media (min-width: 700px) and (orientation: portrait) {
+            .app-chat-mobile {
+                padding:
+                    calc(18px + var(--safe-top))
+                    calc(20px + var(--safe-right))
+                    calc(18px + var(--safe-bottom))
+                    calc(20px + var(--safe-left));
+            }
+
+            .mobile-shell {
+                width: min(100%, 900px);
+                min-height: calc(100dvh - 36px - var(--safe-top) - var(--safe-bottom));
+                grid-template-rows: auto auto minmax(720px, 1fr) auto;
+                gap: 12px;
+            }
+
+            .topbar-mobile-inner {
+                grid-template-columns: minmax(0, 1fr) 220px;
+                gap: 16px;
+                padding: 15px 17px;
+            }
+
+            .brand-mobile {
+                grid-template-columns: 94px minmax(0,1fr);
+                gap: 13px;
+            }
+
+            .brand-mobile-logo {
+                width: 94px;
+                height: 51px;
+            }
+
+            .brand-mobile-title {
+                font-size: clamp(25px, 3.4vw, 31px);
+            }
+
+            .brand-mobile-subtitle {
+                font-size: 11.5px;
+            }
+
+            .btn-mobile-top {
+                min-height: 46px;
+                font-size: 12px;
+            }
+
+            .chat-panel {
+                min-height: 720px;
+            }
+
+            #chat-mensajes {
+                padding: 22px;
+            }
+
+            .chat-mensaje {
+                max-width: 76%;
+                font-size: 16.5px;
+                line-height: 1.6;
+            }
+        }
+
+        /* =========================================================
+           iPAD / TABLET HORIZONTAL
+        ========================================================= */
+        @media (min-width: 900px) and (orientation: landscape) {
+            .mobile-shell {
+                width: min(100%, 1120px);
+                grid-template-rows: auto auto minmax(580px, 1fr) auto;
+            }
+
+            .topbar-mobile-inner {
+                grid-template-columns: minmax(0, 1fr) 260px;
+            }
+
+            .chat-panel {
+                min-height: 580px;
+            }
+
+            .chat-mensaje {
+                max-width: 72%;
+            }
+        }
+
+        /* =========================================================
+           CELULAR / iPHONE
+        ========================================================= */
+        @media (max-width: 699px) {
+            .app-chat-mobile {
+                padding:
+                    calc(8px + var(--safe-top))
+                    calc(8px + var(--safe-right))
+                    calc(14px + var(--safe-bottom))
+                    calc(8px + var(--safe-left));
+            }
+
+            .mobile-shell {
+                width: 100%;
+                min-height: calc(100dvh - 22px - var(--safe-top) - var(--safe-bottom));
+                grid-template-rows: auto auto minmax(560px, 1fr) auto;
+                gap: 9px;
+            }
+
+            .topbar-mobile {
+                border-radius: 20px;
+            }
+
+            .topbar-mobile-inner {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 11px 12px;
+            }
+
+            .brand-mobile {
+                grid-template-columns: 72px minmax(0,1fr);
+                gap: 9px;
+            }
+
+            .brand-mobile-logo {
+                width: 72px;
+                height: 39px;
+                padding: 5px 7px;
+                border-radius: 12px;
+            }
+
+            .brand-mobile-logo img {
+                max-height: 23px;
+            }
+
+            .brand-mobile-eyebrow {
+                padding: 4px 7px;
+                margin-bottom: 3px;
+                font-size: 7px;
+                white-space: normal;
+            }
+
+            .brand-mobile-title {
+                margin-top: 5px;
+                font-size: clamp(18px, 5.8vw, 23px);
+            }
+
+            .brand-mobile-subtitle {
+                margin-top: 5px;
+                font-size: 10px;
+                line-height: 1.3;
+            }
+
+            .topbar-mobile-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .btn-mobile-top {
+                min-height: 42px;
+                padding: 8px 9px;
+                border-radius: 12px;
+                font-size: 10.8px;
+            }
+
+            .info-strip {
+                padding: 10px;
+                grid-template-columns: 39px minmax(0,1fr) auto;
+                gap: 9px;
+                border-radius: 17px;
+            }
+
+            .info-icon {
+                width: 39px;
+                height: 39px;
+                border-radius: 12px;
+            }
+
+            .info-copy strong {
+                font-size: 11.8px;
+            }
+
+            .info-copy span {
+                font-size: 9.8px;
+            }
+
+            .alma-audio-controls {
+                gap: 5px;
+            }
+
             .alma-control-button {
-                width: 44px;
-                min-width: 44px;
-                height: 44px;
+                width: 40px;
+                min-width: 40px;
+                height: 40px;
                 padding: 0;
             }
 
@@ -505,15 +978,131 @@ $saludoBienvenida =
                 display: none;
             }
 
-            .alma-audio-controls {
-                gap: 5px;
+            .chat-panel {
+                min-height: 560px;
+                border-radius: 19px;
             }
 
-            .info-strip {
+            #chat-mensajes {
+                padding: 14px;
+                gap: 10px;
+            }
+
+            .chat-mensaje {
+                max-width: 86%;
+                padding: 12px 13px;
+                border-radius: 16px;
+                font-size: 14.5px;
+                line-height: 1.52;
+            }
+
+            .chat-input-bar {
+                grid-template-columns: minmax(0,1fr) 48px;
                 gap: 8px;
+                padding: 10px;
+            }
+
+            .chat-input-bar textarea {
+                min-height: 50px;
+                max-height: 116px;
+                padding: 12px 14px;
+                border-radius: 15px;
+                font-size: 16px; /* evita zoom automático en iOS */
+            }
+
+            .btn-enviar-chat {
+                width: 48px;
+                height: 48px;
+                min-width: 48px;
+                border-radius: 14px;
+            }
+
+            .footer-mobile {
+                font-size: 9.8px;
+            }
+        }
+
+        /* iPhone SE / pantallas estrechas */
+        @media (max-width: 390px) {
+            .mobile-shell {
+                grid-template-rows: auto auto minmax(510px, 1fr) auto;
+            }
+
+            .chat-panel {
+                min-height: 510px;
+            }
+
+            .brand-mobile {
+                grid-template-columns: 66px minmax(0,1fr);
+            }
+
+            .brand-mobile-logo {
+                width: 66px;
+                height: 36px;
+            }
+
+            .brand-mobile-title {
+                font-size: 17.5px;
+            }
+
+            .info-copy span {
+                display: none;
+            }
+        }
+
+        /* iPhone horizontal */
+        @media (max-height: 520px) and (orientation: landscape) and (max-width: 932px) {
+            .mobile-shell {
+                min-height: auto;
+                grid-template-rows: auto auto minmax(450px, 1fr) auto;
+            }
+
+            .topbar-mobile-inner {
+                grid-template-columns: minmax(0,1fr) 210px;
+                padding: 9px 12px;
+            }
+
+            .brand-mobile {
+                grid-template-columns: 68px minmax(0,1fr);
+            }
+
+            .brand-mobile-logo {
+                width: 68px;
+                height: 37px;
+            }
+
+            .topbar-mobile-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-mobile-top {
+                min-height: 38px;
+            }
+
+            .chat-panel {
+                min-height: 450px;
+            }
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            body,
+            .app-chat-mobile {
+                min-height: -webkit-fill-available;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
             }
         }
     </style>
+
 </head>
 
 <body>
@@ -628,12 +1217,7 @@ $saludoBienvenida =
                 <p>
                     © <?= $currentYear; ?> <strong>Aliada UTS</strong>
                     · Orientación psicológica con IA.<br>
-
-                    Desarrollado por <strong>Helios Electronics</strong> ·
-
-                    <a href="https://helios.com.co" target="_blank" rel="noopener noreferrer">
-                        helios.com.co
-                    </a>
+                    Desarrollado por <strong>SpiderSoftware S.A.S.</strong>
                 </p>
             </footer>
 
