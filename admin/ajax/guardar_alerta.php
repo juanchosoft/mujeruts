@@ -553,6 +553,40 @@ try {
 
     /*
     |--------------------------------------------------------------------------
+    | DATOS DE CONTACTO DESDE EL PERFIL DE LA USUARIA
+    |--------------------------------------------------------------------------
+    | Algunas alertas antiguas quedaron sin contacto en tbl_alerta_policia
+    | porque este endpoint no lo guardaba. Se completa aquí para nuevas alertas.
+    */
+    $celularUsuaria = '';
+    $contactoEmergencia = '';
+    $nombreContactoEmergencia = '';
+
+    $stmtUsuario = $pdo->prepare(
+        'SELECT celular, contacto_emergencia, nombre_contacto, nombre, apellido
+         FROM tbl_usuarios
+         WHERE id = :id
+         LIMIT 1'
+    );
+    $stmtUsuario->bindValue(':id', $usuarioId, PDO::PARAM_INT);
+    $stmtUsuario->execute();
+    $usuarioDb = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuarioDb) {
+        $celularUsuaria = trim((string) ($usuarioDb['celular'] ?? ''));
+        $contactoEmergencia = trim((string) ($usuarioDb['contacto_emergencia'] ?? ''));
+        $nombreContactoEmergencia = trim((string) ($usuarioDb['nombre_contacto'] ?? ''));
+
+        if ($nombreUsuario === '') {
+            $nombreUsuario = trim(
+                trim((string) ($usuarioDb['nombre'] ?? '')) . ' ' .
+                trim((string) ($usuarioDb['apellido'] ?? ''))
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | GUARDAR ALERTA
     |--------------------------------------------------------------------------
     | La fecha se envía como parámetro desde PHP.
@@ -563,6 +597,9 @@ try {
         (
             usuario_id,
             nombre_usuaria,
+            celular_usuaria,
+            contacto_emergencia,
+            nombre_contacto_emergencia,
             tipo_alerta,
             descripcion,
             latitud,
@@ -576,6 +613,9 @@ try {
         (
             :usuario_id,
             :nombre_usuaria,
+            :celular_usuaria,
+            :contacto_emergencia,
+            :nombre_contacto_emergencia,
             :tipo_alerta,
             :descripcion,
             :latitud,
@@ -602,6 +642,24 @@ try {
         ':nombre_usuaria',
         $nombreUsuario,
         PDO::PARAM_STR
+    );
+
+    $stmt->bindValue(
+        ':celular_usuaria',
+        $celularUsuaria !== '' ? $celularUsuaria : null,
+        $celularUsuaria !== '' ? PDO::PARAM_STR : PDO::PARAM_NULL
+    );
+
+    $stmt->bindValue(
+        ':contacto_emergencia',
+        $contactoEmergencia !== '' ? $contactoEmergencia : null,
+        $contactoEmergencia !== '' ? PDO::PARAM_STR : PDO::PARAM_NULL
+    );
+
+    $stmt->bindValue(
+        ':nombre_contacto_emergencia',
+        $nombreContactoEmergencia !== '' ? $nombreContactoEmergencia : null,
+        $nombreContactoEmergencia !== '' ? PDO::PARAM_STR : PDO::PARAM_NULL
     );
 
     $stmt->bindValue(

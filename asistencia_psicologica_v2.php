@@ -659,6 +659,10 @@ $saludoBienvenida =
             const DURACION_MAXIMA_GRABACION_MS = 60000;
             const UMBRAL_VOLUMEN_VOZ = 0.02;
             const SILENCIO_MS_PARA_DETENER = 1300;
+            // Velocidad nativa en ElevenLabs (voice_settings.speed, rango 0.7-1.2) + un pequeño extra por playbackRate del navegador.
+            const VELOCIDAD_ELEVENLABS = 1.15;
+            const VELOCIDAD_AUDIO_RESPUESTA = 1.08;
+            const RETARDO_REACTIVAR_ESCUCHA_MS = 400;
 
             const listaMensajes = document.getElementById('chat-mensajes');
             const formulario = document.getElementById('chat-form');
@@ -692,6 +696,7 @@ $saludoBienvenida =
             let colaAudio = [];
             let reproduciendoAudio = false;
             let audioActual = null;
+            let parrafoEnRevelado = null;
 
             function mostrarEstado(mensaje, esError = false, duracion = 3200) {
                 clearTimeout(temporizadorEstado);
@@ -717,7 +722,7 @@ $saludoBienvenida =
 
                 listaMensajes.appendChild(li);
                 desplazarAlFinal();
-                return li;
+                return parrafo;
             }
 
             function mostrarIndicadorEscribiendo() {
@@ -832,22 +837,135 @@ $saludoBienvenida =
                     .filter((frase) => frase.trim() !== '');
             }
 
-            async function solicitarAudioElevenLabs(texto) {
+            function decodificarAudioBase64(base64) {
+                const binario = atob(base64);
+                const bytes = new Uint8Array(binario.length);
+
+                for (let i = 0; i < binario.length; i++) {
+                    bytes[i] = binario.charCodeAt(i);
+                }
+
+                return new Blob([bytes], { type: 'audio/mpeg' });
+            }
+
+            /*
+             * Se pide siempre la alineación carácter por carácter de ElevenLabs
+             * (con_tiempos) para poder revelar el texto palabra por palabra en
+             * sincronía real con el audio, en vez de mostrar el fragmento
+             * completo de una sola vez.
+             */
+            async function solicitarAudioConAlineacion(texto) {
                 const respuesta = await fetch('elevenlabs_tts.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-Token': csrfToken
                     },
-                    body: JSON.stringify({ text: texto })
+                    body: JSON.stringify({
+                        text: texto,
+                        con_tiempos: true,
+                        velocidad: VELOCIDAD_ELEVENLABS
+                    })
                 });
 
                 if (!respuesta.ok) {
                     throw new Error('ElevenLabs TTS respondió con error.');
                 }
 
-                const blob = await respuesta.blob();
-                return URL.createObjectURL(blob);
+                const datos = await respuesta.json();
+                const blob = decodificarAudioBase64(datos.audio_base64);
+
+                return {
+                    url: URL.createObjectURL(blob),
+                    alignment: datos.alignment || null
+                };
+            }
+
+            /*
+             * Convierte la alineación por carácter de ElevenLabs en palabras con
+             * su tiempo de inicio (segundos), agrupando caracteres hasta el
+             * siguiente espacio.
+             */
+            function calcularPalabrasConTiempos(alignment) {
+                if (!alignment || !Array.isArray(alignment.characters)) {
+                    return null;
+                }
+
+                const palabras = [];
+                let palabraActual = '';
+                let inicioPalabra = null;
+
+                alignment.characters.forEach((caracter, indice) => {
+                    const inicio = alignment.character_start_times_seconds[indice] ?? 0;
+
+                    if (caracter.trim() === '') {
+                        if (palabraActual !== '') {
+                            palabras.push({ texto: palabraActual, inicio: inicioPalabra });
+                            palabraActual = '';
+                            inicioPalabra = null;
+                        }
+                        return;
+                    }
+
+                    if (inicioPalabra === null) {
+                        inicioPalabra = inicio;
+                    }
+                    palabraActual += caracter;
+                });
+
+                if (palabraActual !== '') {
+                    palabras.push({ texto: palabraActual, inicio: inicioPalabra });
+                }
+
+                return palabras;
+            }
+
+            function revelarFragmentoDeTexto(fragmento) {
+                if (!parrafoEnRevelado) {
+                    return;
+                }
+
+                const separador = parrafoEnRevelado.textContent.trim() === '' ? '' : ' ';
+                parrafoEnRevelado.textContent += separador + fragmento;
+                desplazarAlFinal();
+            }
+
+            /*
+             * Revela cada palabra justo cuando el audio llega a su tiempo de
+             * inicio real (dato de ElevenLabs), no antes ni después — esto es
+             * lo que logra el efecto de "subtítulo" avanzando al ritmo del audio.
+             * Se usa setInterval en vez de requestAnimationFrame porque este
+             * último se frena si la pestaña pierde foco/visibilidad, y el audio
+             * puede seguir sonando aunque la usuaria mire otra ventana.
+             */
+            function revelarPorPalabraSincronizado(audioElemento, palabras) {
+                let indice = 0;
+
+                const intervalo = setInterval(() => {
+                    if (audioActual !== audioElemento) {
+                        clearInterval(intervalo);
+                        return;
+                    }
+
+                    while (indice < palabras.length && audioElemento.currentTime >= palabras[indice].inicio) {
+                        revelarFragmentoDeTexto(palabras[indice].texto);
+                        indice += 1;
+                    }
+
+                    if (indice >= palabras.length || audioElemento.ended) {
+                        for (; indice < palabras.length; indice += 1) {
+                            revelarFragmentoDeTexto(palabras[indice].texto);
+                        }
+                        clearInterval(intervalo);
+                    }
+                }, 60);
+            }
+
+            function finalizarRevelado() {
+                if (colaAudio.length === 0) {
+                    parrafoEnRevelado = null;
+                    reactivarEscuchaSiCorresponde();
+                }
             }
 
             async function reproducirSiguienteAudio() {
@@ -859,33 +977,85 @@ $saludoBienvenida =
                 btnParlante.classList.add('hablando');
 
                 const textoFragmento = colaAudio.shift();
+                let yaSeRevelo = false;
 
                 try {
-                    const urlAudio = await solicitarAudioElevenLabs(textoFragmento);
+                    const { url: urlAudio, alignment } = await solicitarAudioConAlineacion(textoFragmento);
                     audioActual = new Audio(urlAudio);
+                    audioActual.playbackRate = VELOCIDAD_AUDIO_RESPUESTA;
 
                     audioActual.addEventListener('ended', () => {
                         URL.revokeObjectURL(urlAudio);
                         reproduciendoAudio = false;
                         btnParlante.classList.remove('hablando');
+                        finalizarRevelado();
                         reproducirSiguienteAudio();
                     });
 
                     await audioActual.play();
+
+                    /*
+                     * La revelación empieza después de que el audio ya está
+                     * sonando de verdad (currentTime avanzando), nunca antes.
+                     */
+                    const palabras = calcularPalabrasConTiempos(alignment);
+                    yaSeRevelo = true;
+
+                    if (palabras && palabras.length > 0) {
+                        revelarPorPalabraSincronizado(audioActual, palabras);
+                    } else {
+                        revelarFragmentoDeTexto(textoFragmento);
+                    }
                 } catch (error) {
+                    // Si falla el audio de un fragmento, el texto se muestra igual para no dejar la burbuja vacía.
+                    if (!yaSeRevelo) {
+                        revelarFragmentoDeTexto(textoFragmento);
+                    }
                     reproduciendoAudio = false;
                     btnParlante.classList.remove('hablando');
+                    finalizarRevelado();
                     reproducirSiguienteAudio();
                 }
             }
 
-            function encolarRespuestaHablada(texto) {
+            function encolarRespuestaHablada(texto, parrafoDestino) {
                 if (!audioActivo) {
                     return;
                 }
 
-                colaAudio.push(...extraerFrasesHablables(texto));
+                const frases = extraerFrasesHablables(texto);
+
+                if (frases.length === 0) {
+                    if (parrafoDestino) {
+                        parrafoDestino.textContent = texto;
+                    }
+                    reactivarEscuchaSiCorresponde();
+                    return;
+                }
+
+                parrafoEnRevelado = parrafoDestino || null;
+                colaAudio.push(...frases);
                 reproducirSiguienteAudio();
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | CONVERSACIÓN FLUIDA: reactivar el micrófono al terminar el audio
+            |--------------------------------------------------------------------------
+            | Solo aplica con el modo audio activo: al terminar de reproducirse
+            | la respuesta hablada, se vuelve a escuchar automáticamente sin
+            | que la usuaria tenga que tocar el micrófono otra vez.
+            */
+            function reactivarEscuchaSiCorresponde() {
+                if (!audioActivo || grabando || esperandoRespuesta) {
+                    return;
+                }
+
+                setTimeout(() => {
+                    if (audioActivo && !grabando && !esperandoRespuesta) {
+                        iniciarGrabacion();
+                    }
+                }, RETARDO_REACTIVAR_ESCUCHA_MS);
             }
 
             function actualizarBotonParlante() {
@@ -953,8 +1123,13 @@ $saludoBienvenida =
                     conversacionId = datos.conversacion_id;
 
                     quitarIndicadorEscribiendo();
-                    agregarBurbuja('asistente', datos.respuesta_texto);
-                    encolarRespuestaHablada(datos.respuesta_texto);
+
+                    if (audioActivo) {
+                        const parrafoRespuesta = agregarBurbuja('asistente', '');
+                        encolarRespuestaHablada(datos.respuesta_texto, parrafoRespuesta);
+                    } else {
+                        agregarBurbuja('asistente', datos.respuesta_texto);
+                    }
 
                     /*
                      * DESHABILITADO TEMPORALMENTE (a petición del cliente):
@@ -1193,5 +1368,6 @@ $saludoBienvenida =
             agregarBurbuja('asistente', saludoBienvenida);
         });
     </script>
+    <?php include __DIR__ . '/videollamada_banner.php'; ?>
 </body>
 </html>

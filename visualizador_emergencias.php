@@ -16,28 +16,29 @@ $alertasPendientes = [];
 
 try {
     $sql = "SELECT
-                id,
-                usuario_id,
-                nombre_usuaria,
-                celular_usuaria,
-                contacto_emergencia,
-                nombre_contacto_emergencia,
-                direccion_detectada,
-                latitud,
-                longitud,
-                precision_metros,
-                ubicacion_confirmada,
-                fecha_registro,
-                COALESCE(estado_atencion_visualizador, 'no_atendida') AS estado_atencion_visualizador
-            FROM tbl_alerta_policia
-            WHERE COALESCE(estado_atencion_visualizador, 'no_atendida') IN ('no_atendida', 'en_atencion')
+                a.id,
+                a.usuario_id,
+                a.nombre_usuaria,
+                COALESCE(NULLIF(TRIM(a.celular_usuaria), ''), u.celular) AS celular_usuaria,
+                COALESCE(NULLIF(TRIM(a.contacto_emergencia), ''), u.contacto_emergencia) AS contacto_emergencia,
+                COALESCE(NULLIF(TRIM(a.nombre_contacto_emergencia), ''), u.nombre_contacto) AS nombre_contacto_emergencia,
+                a.direccion_detectada,
+                a.latitud,
+                a.longitud,
+                a.precision_metros,
+                a.ubicacion_confirmada,
+                a.fecha_registro,
+                COALESCE(a.estado_atencion_visualizador, 'no_atendida') AS estado_atencion_visualizador
+            FROM tbl_alerta_policia a
+            LEFT JOIN tbl_usuarios u ON u.id = a.usuario_id
+            WHERE COALESCE(a.estado_atencion_visualizador, 'no_atendida') IN ('no_atendida', 'en_atencion')
             ORDER BY
-                CASE COALESCE(estado_atencion_visualizador, 'no_atendida')
+                CASE COALESCE(a.estado_atencion_visualizador, 'no_atendida')
                     WHEN 'en_atencion' THEN 1
                     WHEN 'no_atendida' THEN 2
                     ELSE 3
                 END,
-                id DESC";
+                a.id DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
@@ -126,6 +127,12 @@ function fechaBonita($fecha)
            - Cuerpo con scroll independiente
            - Botones inferiores siempre visibles
         ========================================================= */
+        /* SweetAlert2 por encima del modal (z-index 10500/10510), si no sus
+           diálogos quedan tapados y la interacción se bloquea. */
+        .swal2-container {
+            z-index: 20000 !important;
+        }
+
         .attention-panel-backdrop {
             position: fixed !important;
             inset: 0 !important;
@@ -418,6 +425,17 @@ function fechaBonita($fecha)
             transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
         }
 
+        button.contact-action-btn {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        button.contact-action-btn.is-loading {
+            pointer-events: none;
+            opacity: 0.82;
+            filter: none;
+        }
+
         .contact-action-btn:hover {
             color: #fff !important;
             filter: brightness(1.08);
@@ -445,6 +463,115 @@ function fechaBonita($fecha)
 
         .action-sms {
             background: linear-gradient(135deg, #ff466d, #f42f58) !important;
+        }
+
+        .action-alert-contact {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        }
+
+        .video-call-panel {
+            margin-top: 14px;
+            overflow: hidden;
+            border: 1px solid var(--emergency-border);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.035);
+        }
+
+        .video-call-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .video-call-head i {
+            color: #d28aff;
+        }
+
+        .video-call-close {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 10px;
+            background: transparent;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .video-call-close:hover {
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        #hmsVideoFrame {
+            display: block;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            max-height: 480px;
+            border: 0;
+            background: #000;
+        }
+
+        @media (max-width: 767.98px) {
+            #hmsVideoFrame {
+                aspect-ratio: auto;
+                height: 60vh;
+            }
+        }
+
+        /* Ocultar la burbuja flotante del widget de Zadarma, la llamada se
+           dispara desde el botón "Llamar". */
+        .zdrm-phone,
+        .zdrm-webrtc-error {
+            display: none !important;
+        }
+
+        .call-active-indicator {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            border: 1px solid var(--emergency-border);
+            border-radius: 14px;
+            background: rgba(34, 147, 92, 0.12);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .call-active-indicator.show {
+            display: flex;
+        }
+
+        .call-active-indicator i {
+            color: #22935c;
+        }
+
+        .call-active-hangup {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #d7375f;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .call-active-hangup:hover {
+            filter: brightness(1.08);
         }
 
         .form-section {
@@ -963,10 +1090,16 @@ include './admin/include/header.php';
                 </h4>
 
                 <div class="contact-actions-bar">
-                    <a href="#" class="contact-action-btn action-call" id="btnLlamarUsuaria">
+                    <button
+                        type="button"
+                        class="contact-action-btn action-call"
+                        id="btnLlamarUsuaria"
+                        disabled
+                        aria-disabled="true"
+                    >
                         <i class="fas fa-phone" aria-hidden="true"></i>
                         <span>Llamar</span>
-                    </a>
+                    </button>
 
                     <a
                         href="#"
@@ -979,32 +1112,73 @@ include './admin/include/header.php';
                         <span>WhatsApp</span>
                     </a>
 
-                    <a
-                        href="#"
+                    <button
+                        type="button"
                         class="contact-action-btn action-video"
                         id="btnIniciarVideollamada"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        disabled
+                        aria-disabled="true"
                     >
                         <i class="fas fa-video" aria-hidden="true"></i>
                         <span>Iniciar videollamada</span>
-                    </a>
+                    </button>
 
-                    <a
-                        href="#"
+                    <button
+                        type="button"
                         class="contact-action-btn action-whatsapp"
                         id="btnEnviarVideoWhatsapp"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        disabled
+                        aria-disabled="true"
                     >
                         <i class="fab fa-whatsapp" aria-hidden="true"></i>
                         <span>Enviar enlace por WhatsApp</span>
-                    </a>
+                    </button>
 
-                    <a href="#" class="contact-action-btn action-sms" id="btnEnviarVideoSMS">
+                    <button
+                        type="button"
+                        class="contact-action-btn action-sms"
+                        id="btnEnviarVideoSMS"
+                        disabled
+                        aria-disabled="true"
+                    >
                         <i class="fas fa-comment-sms" aria-hidden="true"></i>
                         <span>Enviar enlace por SMS</span>
-                    </a>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="contact-action-btn action-alert-contact"
+                        id="btnAlertarContactoEmergencia"
+                        disabled
+                        aria-disabled="true"
+                    >
+                        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                        <span id="btnAlertarContactoEmergenciaLabel">Alertar a contacto de emergencia</span>
+                    </button>
+                </div>
+
+                <section class="video-call-panel" id="videoCallPanel" hidden>
+                    <div class="video-call-head">
+                        <span><i class="fas fa-video" aria-hidden="true"></i> Videollamada en curso</span>
+                        <button type="button" class="video-call-close" id="btnCerrarVideollamada">
+                            <i class="fas fa-xmark" aria-hidden="true"></i>
+                            Cerrar
+                        </button>
+                    </div>
+                    <iframe
+                        id="hmsVideoFrame"
+                        title="Videollamada 100ms"
+                        allow="camera *; microphone *; display-capture *; autoplay"
+                        allowfullscreen
+                    ></iframe>
+                </section>
+
+                <div class="call-active-indicator" id="callActiveIndicator">
+                    <span><i class="fas fa-phone-volume" aria-hidden="true"></i> Llamada en curso</span>
+                    <button type="button" class="call-active-hangup" id="btnColgarLlamada">
+                        <i class="fas fa-phone-slash" aria-hidden="true"></i>
+                        Colgar
+                    </button>
                 </div>
             </section>
 
@@ -1104,10 +1278,13 @@ include './admin/include/header.php';
     crossorigin=""
 ></script>
 
+<script src="https://my.zadarma.com/webphoneWebRTCWidget/v9/js/loader-phone-lib.js?sub_v=1"></script>
+<script src="https://my.zadarma.com/webphoneWebRTCWidget/v9/js/loader-phone-fn.js?sub_v=1"></script>
+
 <script>
     'use strict';
 
-    const AJAX_URL_VISUALIZADOR = window.location.origin + '/BotonDePanico/admin/ajax/visualizador_emergencias_ajax.php';
+    const AJAX_URL_VISUALIZADOR = <?= json_encode('admin/ajax/visualizador_emergencias_ajax.php', JSON_UNESCAPED_SLASHES) ?>;
     const DEFAULT_CENTER = [6.6936, -73.4860];
 
     let visualMap = null;
@@ -1116,7 +1293,19 @@ include './admin/include/header.php';
     let selectedAlertId = null;
     let hasUnsavedChanges = false;
     let isSaving = false;
+    let isAlertandoContacto = false;
+    let contactoEmergenciaDisponible = false;
     let previouslyFocusedElement = null;
+    let currentVideollamada = null;
+    let isCreandoVideollamada = false;
+    let isEnviandoVideoWhatsapp = false;
+    let isEnviandoVideoSMS = false;
+    let comunicacionActivaId = null;
+    let zadarmaWidgetListo = false;
+    let zadarmaInicializando = null;
+    let zadarmaLlamadaActiva = false;
+    let zadarmaEstadoInterval = null;
+    let isIniciandoLlamada = false;
 
     document.addEventListener('DOMContentLoaded', function () {
         initMap();
@@ -1195,6 +1384,48 @@ include './admin/include/header.php';
             backdrop.addEventListener('click', requestCloseAttentionPanel);
         }
 
+        const btnAlertarContacto = document.getElementById('btnAlertarContactoEmergencia');
+
+        if (btnAlertarContacto) {
+            btnAlertarContacto.addEventListener('click', alertarContactoEmergencia);
+        }
+
+        const btnIniciarVideollamada = document.getElementById('btnIniciarVideollamada');
+        const btnEnviarVideoWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
+        const btnEnviarVideoSMS = document.getElementById('btnEnviarVideoSMS');
+        const btnCerrarVideollamada = document.getElementById('btnCerrarVideollamada');
+
+        if (btnIniciarVideollamada) {
+            btnIniciarVideollamada.addEventListener('click', manejarIniciarVideollamada);
+        }
+
+        if (btnEnviarVideoWhatsapp) {
+            btnEnviarVideoWhatsapp.addEventListener('click', function () {
+                manejarEnviarEnlaceVideollamada('enviar_video_whatsapp');
+            });
+        }
+
+        if (btnEnviarVideoSMS) {
+            btnEnviarVideoSMS.addEventListener('click', function () {
+                manejarEnviarEnlaceVideollamada('enviar_video_sms');
+            });
+        }
+
+        if (btnCerrarVideollamada) {
+            btnCerrarVideollamada.addEventListener('click', ocultarPanelVideollamada);
+        }
+
+        const btnLlamarUsuaria = document.getElementById('btnLlamarUsuaria');
+        const btnColgarLlamada = document.getElementById('btnColgarLlamada');
+
+        if (btnLlamarUsuaria) {
+            btnLlamarUsuaria.addEventListener('click', manejarLlamar);
+        }
+
+        if (btnColgarLlamada) {
+            btnColgarLlamada.addEventListener('click', finalizarLlamadaEnCurso);
+        }
+
         document.addEventListener('keydown', function (event) {
             const panel = document.getElementById('attentionPanel');
 
@@ -1236,6 +1467,34 @@ include './admin/include/header.php';
             textarea.style.height = '';
             textarea.style.overflowY = '';
         });
+    }
+
+    function obtenerFechaGestionBonita() {
+        return new Intl.DateTimeFormat('es-CO', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'America/Bogota'
+        }).format(new Date());
+    }
+
+    function agregarRegistroGestion(textoAdicional) {
+        const campo = document.getElementById('gestion_realizada');
+
+        if (!campo || !textoAdicional) {
+            return;
+        }
+
+        const contenidoActual = String(campo.value || '').trim();
+        campo.value = contenidoActual
+            ? contenidoActual + '\n' + textoAdicional
+            : textoAdicional;
+
+        hasUnsavedChanges = true;
+        autoGrowTextarea(campo);
     }
 
     function selectAlert(item) {
@@ -1320,8 +1579,15 @@ include './admin/include/header.php';
         const btnVideo = document.getElementById('btnIniciarVideollamada');
         const btnEnviarVideoWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
         const btnEnviarVideoSMS = document.getElementById('btnEnviarVideoSMS');
+        const btnAlertarContacto = document.getElementById('btnAlertarContactoEmergencia');
 
         const telefonoLimpio = limpiarTelefono(data.celular);
+        const contactoLimpio = limpiarTelefono(data.contacto);
+        const contactoInternacional = obtenerTelefonoInternacional(contactoLimpio);
+        const tieneContactoEmergencia = Boolean(
+            contactoInternacional && contactoInternacional.length >= 12
+        );
+        contactoEmergenciaDisponible = tieneContactoEmergencia;
         const telefonoInternacional = obtenerTelefonoInternacional(telefonoLimpio);
 
         const mensajeWhatsApp = encodeURIComponent(
@@ -1330,24 +1596,7 @@ include './admin/include/header.php';
             'Este mensaje está relacionado con tu solicitud de apoyo registrada en el sistema.'
         );
 
-        const sala = 'VioletaSantander-' +
-            (data.id || 'alerta') + '-' +
-            normalizarTextoSala(data.nombre || 'usuaria');
-
-        const urlVideo = 'https://meet.jit.si/' + sala;
-
-        const textoVideollamada =
-            'Hola ' + (data.nombre || '') +
-            ', te compartimos el enlace de videollamada para tu atención desde Violeta Santander: ' +
-            urlVideo;
-
-        const mensajeVideollamada = encodeURIComponent(textoVideollamada);
-
-        configurarBotonContacto(
-            btnLlamar,
-            telefonoInternacional ? 'tel:+' + telefonoInternacional : '#',
-            Boolean(telefonoInternacional)
-        );
+        configurarBotonAccion(btnLlamar, Boolean(telefonoInternacional));
 
         configurarBotonContacto(
             btnWhatsapp,
@@ -1357,23 +1606,607 @@ include './admin/include/header.php';
             Boolean(telefonoInternacional)
         );
 
-        configurarBotonContacto(btnVideo, urlVideo, true);
+        configurarBotonAccion(btnVideo, Boolean(telefonoInternacional));
+        configurarBotonAccion(btnEnviarVideoWhatsapp, Boolean(telefonoInternacional));
+        configurarBotonAccion(btnEnviarVideoSMS, Boolean(telefonoInternacional));
 
-        configurarBotonContacto(
-            btnEnviarVideoWhatsapp,
-            telefonoInternacional
-                ? 'https://wa.me/' + telefonoInternacional + '?text=' + mensajeVideollamada
-                : '#',
-            Boolean(telefonoInternacional)
+        currentVideollamada = null;
+        ocultarPanelVideollamada();
+
+        configurarBotonAccion(btnAlertarContacto, tieneContactoEmergencia);
+    }
+
+    function configurarBotonAccion(button, enabled) {
+        if (!button) {
+            return;
+        }
+
+        button.disabled = !enabled;
+        button.classList.toggle('is-disabled', !enabled);
+        button.setAttribute('aria-disabled', enabled ? 'false' : 'true');
+        button.tabIndex = enabled ? 0 : -1;
+    }
+
+    function setEstadoBotonAlertarContacto(cargando) {
+        const btnAlertarContacto = document.getElementById('btnAlertarContactoEmergencia');
+        const label = document.getElementById('btnAlertarContactoEmergenciaLabel');
+        const icono = btnAlertarContacto ? btnAlertarContacto.querySelector('i') : null;
+
+        if (!btnAlertarContacto || !label) {
+            return;
+        }
+
+        if (cargando) {
+            btnAlertarContacto.disabled = true;
+            btnAlertarContacto.classList.add('is-loading');
+            btnAlertarContacto.setAttribute('aria-disabled', 'true');
+            label.textContent = 'Enviando alerta...';
+
+            if (icono) {
+                icono.className = 'fas fa-spinner fa-spin';
+            }
+
+            return;
+        }
+
+        btnAlertarContacto.classList.remove('is-loading');
+        label.textContent = 'Alertar a contacto de emergencia';
+
+        if (icono) {
+            icono.className = 'fab fa-whatsapp';
+        }
+
+        configurarBotonAccion(btnAlertarContacto, contactoEmergenciaDisponible);
+    }
+
+    function alertarContactoEmergencia() {
+        const alertaId = document.getElementById('alerta_id')?.value || '';
+        const btnAlertarContacto = document.getElementById('btnAlertarContactoEmergencia');
+
+        if (!alertaId || isAlertandoContacto || isSaving) {
+            return;
+        }
+
+        if (btnAlertarContacto && (btnAlertarContacto.disabled || btnAlertarContacto.classList.contains('is-disabled'))) {
+            return;
+        }
+
+        isAlertandoContacto = true;
+        setEstadoBotonAlertarContacto(true);
+
+        const body = new URLSearchParams();
+        body.append('action', 'alertar_contacto_emergencia');
+        body.append('alerta_id', alertaId);
+
+        fetch(AJAX_URL_VISUALIZADOR, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: body.toString()
+        })
+            .then(parseJsonResponse)
+            .then(function (json) {
+                if (!json.ok) {
+                    throw new Error(json.message || 'No fue posible enviar la alerta por WhatsApp.');
+                }
+
+                const nombreContacto = json.contacto_nombre
+                    || document.getElementById('form_nombre_contacto_emergencia')?.value
+                    || document.getElementById('snap_contacto_nombre')?.textContent
+                    || 'contacto de emergencia';
+
+                const telefonoContacto = json.contacto_telefono
+                    || document.getElementById('form_contacto_emergencia')?.value
+                    || document.getElementById('snap_contacto')?.textContent
+                    || '';
+
+                const detalleContacto = telefonoContacto && telefonoContacto !== '-'
+                    ? nombreContacto + ' (' + telefonoContacto + ')'
+                    : nombreContacto;
+
+                agregarRegistroGestion(
+                    '[' + obtenerFechaGestionBonita() + '] ' +
+                    'Se envió alerta por WhatsApp al contacto de emergencia: ' +
+                    detalleContacto +
+                    ' (plantilla notificacion_aliada).'
+                );
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Alerta enviada',
+                        text: json.message || 'Se notificó al contacto de emergencia por WhatsApp.',
+                        confirmButtonColor: '#ff3d68'
+                    });
+                } else {
+                    window.alert(json.message || 'Se notificó al contacto de emergencia por WhatsApp.');
+                }
+            })
+            .catch(function (error) {
+                console.error('Error al alertar contacto:', error);
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire(
+                        'Error',
+                        error.message || 'No fue posible enviar la alerta por WhatsApp.',
+                        'error'
+                    );
+                } else {
+                    window.alert(error.message || 'No fue posible enviar la alerta por WhatsApp.');
+                }
+            })
+            .finally(function () {
+                isAlertandoContacto = false;
+                setEstadoBotonAlertarContacto(false);
+            });
+    }
+
+    function ocultarPanelVideollamada() {
+        const panel = document.getElementById('videoCallPanel');
+        const iframe = document.getElementById('hmsVideoFrame');
+
+        if (panel) {
+            panel.hidden = true;
+        }
+
+        if (iframe) {
+            iframe.src = '';
+        }
+
+        if (currentVideollamada) {
+            liberarComunicacionActiva();
+        }
+    }
+
+    function mostrarPanelVideollamada(url) {
+        const panel = document.getElementById('videoCallPanel');
+        const iframe = document.getElementById('hmsVideoFrame');
+
+        if (!panel || !iframe) {
+            return;
+        }
+
+        iframe.src = url;
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function setBotonVideoCargando(button, cargando, iconoClaseNormal, labelNormal, labelCargando) {
+        if (!button) {
+            return;
+        }
+
+        const icono = button.querySelector('i');
+        const label = button.querySelector('span');
+
+        button.classList.toggle('is-loading', cargando);
+        button.disabled = cargando;
+
+        if (label) {
+            label.textContent = cargando ? labelCargando : labelNormal;
+        }
+
+        if (icono) {
+            icono.className = cargando ? 'fas fa-spinner fa-spin' : iconoClaseNormal;
+        }
+    }
+
+    function obtenerOcrearVideollamada() {
+        if (currentVideollamada) {
+            return Promise.resolve(currentVideollamada);
+        }
+
+        const alertaId = document.getElementById('alerta_id')?.value || '';
+        const nombreUsuaria = document.getElementById('form_nombre_usuaria')?.value || '';
+
+        if (!alertaId) {
+            return Promise.reject(new Error('No hay una emergencia seleccionada.'));
+        }
+
+        const body = new URLSearchParams();
+        body.append('action', 'iniciar_videollamada');
+        body.append('alerta_id', alertaId);
+        body.append('nombre_usuaria', nombreUsuaria);
+
+        return fetch(AJAX_URL_VISUALIZADOR, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: body.toString()
+        })
+            .then(parseJsonResponse)
+            .then(function (json) {
+                if (!json.ok) {
+                    throw new Error(json.message || 'No fue posible iniciar la videollamada.');
+                }
+
+                comunicacionActivaId = json.comunicacion_id;
+
+                currentVideollamada = {
+                    roomName: json.room_name,
+                    hostUrl: json.host_url,
+                    guestUrl: json.guest_url
+                };
+
+                return currentVideollamada;
+            });
+    }
+
+    function preguntarCanalEnvioVideollamada() {
+        const btnWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
+        const puedeEnviar = Boolean(
+            btnWhatsapp && !btnWhatsapp.disabled && !btnWhatsapp.classList.contains('is-disabled')
         );
 
-        configurarBotonContacto(
-            btnEnviarVideoSMS,
-            telefonoInternacional
-                ? 'sms:+' + telefonoInternacional + '?body=' + mensajeVideollamada
-                : '#',
-            Boolean(telefonoInternacional)
+        if (!puedeEnviar || typeof Swal === 'undefined') {
+            return Promise.resolve(null);
+        }
+
+        return Swal.fire({
+            icon: 'question',
+            title: '¿Por dónde deseas enviar el enlace a la usuaria?',
+            text: 'Se enviará junto con la videollamada que se va a iniciar.',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'WhatsApp',
+            denyButtonText: 'SMS',
+            cancelButtonText: 'Solo iniciar la llamada',
+            confirmButtonColor: '#22935c',
+            denyButtonColor: '#ff466d',
+            cancelButtonColor: '#5d496d',
+            allowOutsideClick: false
+        }).then(function (resultado) {
+            if (resultado.isConfirmed) {
+                return 'enviar_video_whatsapp';
+            }
+
+            if (resultado.isDenied) {
+                return 'enviar_video_sms';
+            }
+
+            return null;
+        });
+    }
+
+    function manejarIniciarVideollamada() {
+        const boton = document.getElementById('btnIniciarVideollamada');
+
+        if (isCreandoVideollamada || (boton && (boton.disabled || boton.classList.contains('is-disabled')))) {
+            return;
+        }
+
+        isCreandoVideollamada = true;
+
+        preguntarCanalEnvioVideollamada()
+            .then(function (canalElegido) {
+                setBotonVideoCargando(boton, true, 'fas fa-video', 'Iniciar videollamada', 'Creando sala...');
+
+                return obtenerOcrearVideollamada()
+                    .then(function (videollamada) {
+                        mostrarPanelVideollamada(videollamada.hostUrl);
+
+                        agregarRegistroGestion(
+                            '[' + obtenerFechaGestionBonita() + '] ' +
+                            'Se inició una videollamada (100ms) para la atención de esta emergencia.'
+                        );
+
+                        if (canalElegido) {
+                            manejarEnviarEnlaceVideollamada(canalElegido);
+                        }
+                    });
+            })
+            .catch(function (error) {
+                console.error('Error al iniciar videollamada:', error);
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error', error.message || 'No fue posible iniciar la videollamada.', 'error');
+                } else {
+                    window.alert(error.message || 'No fue posible iniciar la videollamada.');
+                }
+            })
+            .finally(function () {
+                isCreandoVideollamada = false;
+                setBotonVideoCargando(boton, false, 'fas fa-video', 'Iniciar videollamada', 'Creando sala...');
+            });
+    }
+
+    function manejarEnviarEnlaceVideollamada(accion) {
+        const esWhatsapp = accion === 'enviar_video_whatsapp';
+        const boton = document.getElementById(esWhatsapp ? 'btnEnviarVideoWhatsapp' : 'btnEnviarVideoSMS');
+        const yaEnviando = esWhatsapp ? isEnviandoVideoWhatsapp : isEnviandoVideoSMS;
+
+        if (yaEnviando || (boton && (boton.disabled || boton.classList.contains('is-disabled')))) {
+            return;
+        }
+
+        const iconoNormal = esWhatsapp ? 'fab fa-whatsapp' : 'fas fa-comment-sms';
+        const labelNormal = esWhatsapp ? 'Enviar enlace por WhatsApp' : 'Enviar enlace por SMS';
+
+        if (esWhatsapp) {
+            isEnviandoVideoWhatsapp = true;
+        } else {
+            isEnviandoVideoSMS = true;
+        }
+
+        setBotonVideoCargando(boton, true, iconoNormal, labelNormal, 'Enviando...');
+
+        const telefono = document.getElementById('form_celular_usuaria')?.value || '';
+        const alertaId = document.getElementById('alerta_id')?.value || '';
+
+        obtenerOcrearVideollamada()
+            .then(function (videollamada) {
+                const body = new URLSearchParams();
+                body.append('action', accion);
+                body.append('alerta_id', alertaId);
+                body.append('telefono', telefono);
+                body.append('guest_url', videollamada.guestUrl);
+                body.append('room_name', videollamada.roomName || '');
+
+                return fetch(AJAX_URL_VISUALIZADOR, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: body.toString()
+                }).then(parseJsonResponse);
+            })
+            .then(function (json) {
+                if (!json.ok) {
+                    throw new Error(json.message || 'No fue posible enviar el enlace de videollamada.');
+                }
+
+                agregarRegistroGestion(
+                    '[' + obtenerFechaGestionBonita() + '] ' +
+                    json.message +
+                    ' Enlace: ' + json.guest_url
+                );
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Enlace enviado',
+                        text: json.message,
+                        confirmButtonColor: '#ff3d68'
+                    });
+                } else {
+                    window.alert(json.message);
+                }
+            })
+            .catch(function (error) {
+                console.error('Error al enviar enlace de videollamada:', error);
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error', error.message || 'No fue posible enviar el enlace de videollamada.', 'error');
+                } else {
+                    window.alert(error.message || 'No fue posible enviar el enlace de videollamada.');
+                }
+            })
+            .finally(function () {
+                if (esWhatsapp) {
+                    isEnviandoVideoWhatsapp = false;
+                } else {
+                    isEnviandoVideoSMS = false;
+                }
+
+                setBotonVideoCargando(boton, false, iconoNormal, labelNormal, 'Enviando...');
+            });
+    }
+
+    function liberarComunicacionActiva() {
+        const idAnterior = comunicacionActivaId;
+        comunicacionActivaId = null;
+
+        if (!idAnterior) {
+            return;
+        }
+
+        const body = new URLSearchParams();
+        body.append('action', 'finalizar_comunicacion');
+        body.append('comunicacion_id', idAnterior);
+
+        fetch(AJAX_URL_VISUALIZADOR, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: body.toString()
+        }).catch(function () {});
+    }
+
+    function mostrarIndicadorLlamada(mostrar) {
+        const indicador = document.getElementById('callActiveIndicator');
+
+        if (indicador) {
+            indicador.classList.toggle('show', mostrar);
+        }
+    }
+
+    function detenerMonitoreoLlamada() {
+        if (zadarmaEstadoInterval) {
+            clearInterval(zadarmaEstadoInterval);
+            zadarmaEstadoInterval = null;
+        }
+    }
+
+    function finalizarLlamadaEnCurso() {
+        if (window.zdrmWPhI && window.zdrmWPhI.apiWidget) {
+            try {
+                window.zdrmWPhI.apiWidget.cancel();
+            } catch (error) {
+                console.error('Error al colgar la llamada:', error);
+            }
+        }
+
+        detenerMonitoreoLlamada();
+
+        if (!zadarmaLlamadaActiva) {
+            return;
+        }
+
+        zadarmaLlamadaActiva = false;
+        mostrarIndicadorLlamada(false);
+        liberarComunicacionActiva();
+
+        agregarRegistroGestion(
+            '[' + obtenerFechaGestionBonita() + '] ' +
+            'Se colgó la llamada telefónica (Zadarma) con la usuaria.'
         );
+    }
+
+    function monitorearEstadoLlamada() {
+        detenerMonitoreoLlamada();
+
+        let llamadaConfirmada = false;
+
+        zadarmaEstadoInterval = setInterval(function () {
+            const apiWidget = window.zdrmWPhI ? window.zdrmWPhI.apiWidget : null;
+            const callState = apiWidget ? apiWidget.callState : '';
+
+            if (callState) {
+                llamadaConfirmada = true;
+            }
+
+            if (zadarmaLlamadaActiva && llamadaConfirmada && !callState) {
+                zadarmaLlamadaActiva = false;
+                detenerMonitoreoLlamada();
+                mostrarIndicadorLlamada(false);
+                liberarComunicacionActiva();
+
+                agregarRegistroGestion(
+                    '[' + obtenerFechaGestionBonita() + '] ' +
+                    'Finalizó la llamada telefónica (Zadarma) con la usuaria.'
+                );
+            }
+        }, 500);
+    }
+
+    function inicializarZadarmaWidget() {
+        if (zadarmaWidgetListo) {
+            return Promise.resolve();
+        }
+
+        if (zadarmaInicializando) {
+            return zadarmaInicializando;
+        }
+
+        zadarmaInicializando = fetch(AJAX_URL_VISUALIZADOR, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: 'action=obtener_credenciales_llamada'
+        })
+            .then(parseJsonResponse)
+            .then(function (json) {
+                if (!json.ok) {
+                    throw new Error(json.message || 'No fue posible obtener las credenciales de llamada.');
+                }
+
+                if (typeof zadarmaWidgetFn !== 'function') {
+                    throw new Error('No se pudo cargar el softphone de Zadarma.');
+                }
+
+                zadarmaWidgetFn(json.webrtc_key, json.sip_login, 'square', 'es', true, "{right:'10px',bottom:'5px'}");
+
+                return new Promise(function (resolve, reject) {
+                    let intentos = 0;
+
+                    const espera = setInterval(function () {
+                        intentos++;
+
+                        const listo = window.zdrmWPhI
+                            && window.zdrmWPhI.apiWidget
+                            && typeof window.zdrmWPhI.apiWidget.call === 'function';
+
+                        if (listo) {
+                            clearInterval(espera);
+                            zadarmaWidgetListo = true;
+                            resolve();
+                        } else if (intentos > 20) {
+                            clearInterval(espera);
+                            reject(new Error('No fue posible inicializar el softphone de Zadarma.'));
+                        }
+                    }, 300);
+                });
+            })
+            .finally(function () {
+                zadarmaInicializando = null;
+            });
+
+        return zadarmaInicializando;
+    }
+
+    function manejarLlamar() {
+        const boton = document.getElementById('btnLlamarUsuaria');
+
+        if (
+            isIniciandoLlamada
+            || zadarmaLlamadaActiva
+            || (boton && (boton.disabled || boton.classList.contains('is-disabled')))
+        ) {
+            return;
+        }
+
+        const alertaId = document.getElementById('alerta_id')?.value || '';
+        const telefonoRaw = document.getElementById('form_celular_usuaria')?.value || '';
+        const telefonoInternacional = obtenerTelefonoInternacional(limpiarTelefono(telefonoRaw));
+
+        if (!alertaId || !telefonoInternacional) {
+            return;
+        }
+
+        isIniciandoLlamada = true;
+        setBotonVideoCargando(boton, true, 'fas fa-phone', 'Llamar', 'Conectando...');
+
+        const body = new URLSearchParams();
+        body.append('action', 'iniciar_comunicacion');
+        body.append('tipo', 'llamada');
+        body.append('alerta_id', alertaId);
+
+        fetch(AJAX_URL_VISUALIZADOR, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: body.toString()
+        })
+            .then(parseJsonResponse)
+            .then(function (json) {
+                if (!json.ok) {
+                    throw new Error(json.message || 'No fue posible iniciar la llamada.');
+                }
+
+                comunicacionActivaId = json.comunicacion_id;
+
+                return inicializarZadarmaWidget();
+            })
+            .then(function () {
+                zadarmaLlamadaActiva = true;
+                window.zdrmWPhI.apiWidget.call(telefonoInternacional);
+                mostrarIndicadorLlamada(true);
+                monitorearEstadoLlamada();
+
+                agregarRegistroGestion(
+                    '[' + obtenerFechaGestionBonita() + '] ' +
+                    'Se inició una llamada telefónica real (Zadarma) a la usuaria.'
+                );
+            })
+            .catch(function (error) {
+                console.error('Error al iniciar llamada:', error);
+                liberarComunicacionActiva();
+
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error', error.message || 'No fue posible iniciar la llamada.', 'error');
+                } else {
+                    window.alert(error.message || 'No fue posible iniciar la llamada.');
+                }
+            })
+            .finally(function () {
+                isIniciandoLlamada = false;
+                setBotonVideoCargando(boton, false, 'fas fa-phone', 'Llamar', 'Conectando...');
+            });
     }
 
     function configurarBotonContacto(button, href, enabled) {
@@ -1401,14 +2234,6 @@ include './admin/include/header.php';
         }
 
         return '57' + telefono;
-    }
-
-    function normalizarTextoSala(texto) {
-        return String(texto || '')
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-zA-Z0-9]/g, '')
-            .trim() || 'usuaria';
     }
 
     function renderSingleMarker(lat, lng, nombre, direccion, estado, precision) {
@@ -1557,6 +2382,10 @@ include './admin/include/header.php';
 
         document.body.classList.remove('modal-open-emergency');
         hasUnsavedChanges = false;
+        ocultarPanelVideollamada();
+        currentVideollamada = null;
+
+        finalizarLlamadaEnCurso();
 
         if (previouslyFocusedElement && typeof previouslyFocusedElement.focus === 'function') {
             setTimeout(function () {

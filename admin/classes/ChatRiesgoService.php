@@ -9,9 +9,9 @@ require_once __DIR__ . '/../../enviar_whatsapp_emergencia.php';
  * acciones de backend. No reclasifica ni tiene lógica de IA propia.
  *
  * Nivel <= 2: no hace nada especial, el mensaje ya quedó persistido antes de llamar aquí.
- * Nivel 3: solo marca requiere_botones_emergencia (ya viene de Claude, se respeta).
- * Nivel 4: autoregistra una alerta en tbl_alerta_policia (una sola vez por conversación)
- *          y, si el flag está habilitado, notifica por WhatsApp al contacto de emergencia.
+ * Nivel 3 y 4: autoregistra una alerta en tbl_alerta_policia (una sola vez por conversación,
+ *              cubre tanto riesgo alto como inminente) y, si el flag está habilitado,
+ *              notifica por WhatsApp al contacto de emergencia con la plantilla configurada.
  *
  * @author SPIDERSOFTWARE
  */
@@ -36,10 +36,16 @@ class ChatRiesgoService
      */
     public function procesarNivelRiesgo($conversacionId, $usuarioId, $mensajeId, $nivelRiesgo, $resumenAuditoria)
     {
-        if ($nivelRiesgo < 4) {
+        if ($nivelRiesgo < 3) {
             return ['alerta_generada' => false];
         }
 
+        /*
+         * La columna se llama "alerta_nivel4_generada" por el nombre original de la
+         * Fase 4, pero funciona como bandera única por conversación para cualquier
+         * alerta automática (nivel 3 o 4) — evita duplicar el registro/WhatsApp en
+         * cada turno mientras la usuaria siga en riesgo alto o inminente.
+         */
         $stmtConversacion = $this->pdo->prepare(
             'SELECT alerta_nivel4_generada FROM tbl_chat_conversaciones WHERE id = :id LIMIT 1'
         );
@@ -70,13 +76,15 @@ class ChatRiesgoService
         $zonaColombia = new DateTimeZone('America/Bogota');
         $fechaRegistro = (new DateTimeImmutable('now', $zonaColombia))->format('Y-m-d H:i:s');
 
+        $tipoAlerta = 'riesgo_chat_nivel_' . $nivelRiesgo;
+
         $sql = "INSERT INTO tbl_alerta_policia (
                     usuario_id, nombre_usuaria, celular_usuaria, contacto_emergencia,
                     nombre_contacto_emergencia, tipo_alerta, descripcion, estado,
                     ubicacion_confirmada, fecha_registro, chat_conversacion_id, chat_mensaje_id
                 ) VALUES (
                     :usuario_id, :nombre_usuaria, :celular_usuaria, :contacto_emergencia,
-                    :nombre_contacto_emergencia, 'riesgo_chat_nivel_4', :descripcion, 'pendiente',
+                    :nombre_contacto_emergencia, :tipo_alerta, :descripcion, 'pendiente',
                     'no', :fecha_registro, :conversacion_id, :mensaje_id
                 )";
 
@@ -86,6 +94,7 @@ class ChatRiesgoService
         $stmt->bindValue(':celular_usuaria', $celularUsuaria, PDO::PARAM_STR);
         $stmt->bindValue(':contacto_emergencia', $contactoEmergencia, PDO::PARAM_STR);
         $stmt->bindValue(':nombre_contacto_emergencia', $nombreContactoEmergencia, PDO::PARAM_STR);
+        $stmt->bindValue(':tipo_alerta', $tipoAlerta, PDO::PARAM_STR);
         $stmt->bindValue(':descripcion', $resumenAuditoria, PDO::PARAM_STR);
         $stmt->bindValue(':fecha_registro', $fechaRegistro, PDO::PARAM_STR);
         $stmt->bindValue(':conversacion_id', $conversacionId, PDO::PARAM_INT);

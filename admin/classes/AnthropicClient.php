@@ -30,7 +30,7 @@ class AnthropicClient
     {
         return [
             'name' => 'registrar_evaluacion_riesgo',
-            'description' => 'Registra internamente el nivel de riesgo de la usuaria detectado en este turno de la conversación. Debe llamarse en cada respuesta, incluso si el riesgo es bajo.',
+            'description' => 'Registra internamente el nivel de riesgo de la usuaria detectado en este turno de la conversación. Debe llamarse en cada respuesta, incluso si el riesgo es bajo. Esta tool es un registro interno para el sistema, nunca un sustituto de tu respuesta a la usuaria: siempre debes escribir primero tu texto conversacional dirigido a ella y, además, llamar esta tool; nunca respondas únicamente con esta tool sin texto conversacional.',
             'input_schema' => [
                 'type' => 'object',
                 'properties' => [
@@ -193,11 +193,13 @@ class AnthropicClient
         /*
          * Claude puede devolver únicamente el tool_use sin bloque de texto
          * (más frecuente con extended thinking). Nunca debe llegar una
-         * burbuja vacía a una usuaria que puede estar en crisis.
+         * burbuja vacía a una usuaria que puede estar en crisis. El respaldo
+         * se elige según el nivel/señales ya clasificados, para no caer en
+         * una frase de relleno genérica en un momento que puede ser crítico.
          */
         if ($textoRespuesta === '') {
-            error_log('AnthropicClient: Claude respondió sin texto conversacional (solo tool_use). Se usa mensaje de respaldo.');
-            $textoRespuesta = 'Gracias por compartir esto. ¿Puede contarme un poco más sobre cómo se siente o qué está pasando?';
+            error_log('AnthropicClient: Claude respondió sin texto conversacional (solo tool_use). Se usa mensaje de respaldo según nivel ' . $nivel . '.');
+            $textoRespuesta = $this->mensajeRespaldoPorNivel($nivel, $senales);
         }
 
         return [
@@ -209,6 +211,33 @@ class AnthropicClient
             'resumen_auditoria' => $resumenAuditoria,
             'tool_invocada' => $toolInvocada
         ];
+    }
+
+    /**
+     * Respaldo usado solo cuando Claude no devolvió texto conversacional.
+     * No es una reclasificación propia: usa el nivel/señales que Claude ya
+     * calculó en la misma respuesta para elegir una frase con sentido
+     * clínico real, en vez de un relleno genérico ("cuénteme más").
+     */
+    private function mensajeRespaldoPorNivel($nivel, array $senales)
+    {
+        if (in_array('ideacion_suicida', $senales, true) || in_array('intento_en_curso', $senales, true)) {
+            return 'Gracias por decírmelo. Siento que esté atravesando un dolor tan intenso. ¿Está pensando en suicidarse o en hacerse daño en este momento?';
+        }
+
+        if ($nivel >= 4) {
+            return 'Su seguridad es lo más importante ahora. Necesitamos conectar de inmediato con una persona que pueda estar físicamente con usted o con un servicio de emergencia.';
+        }
+
+        if ($nivel === 3) {
+            return 'Gracias por contarme esto, su seguridad es la prioridad ahora. ¿Puede hablar con tranquilidad en este momento?';
+        }
+
+        if ($nivel === 2) {
+            return 'Gracias por contarme esto, lo que describe no es algo que tenga que enfrentar sola. Cuénteme un poco más sobre lo que está viviendo para poder orientarla mejor.';
+        }
+
+        return 'Cuénteme un poco más sobre lo que la trae hoy por aquí para poder orientarla de la mejor forma.';
     }
 
     private function resultadoError($mensaje)

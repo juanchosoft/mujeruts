@@ -587,5 +587,6 @@ foreach ($evidencias as $ev) {
         Inicio
     </a>
 </nav>
+<?php include __DIR__ . '/videollamada_banner.php'; ?>
 </body>
 </html>

@@ -145,15 +145,29 @@ if (mb_strlen($texto, 'UTF-8') > 1200) {
 }
 
 /*
+ * Parámetros opcionales (por defecto preservan el comportamiento original,
+ * usado hoy por los otros asistentes que reutilizan este mismo puente):
+ * - "velocidad": ritmo nativo de la voz en ElevenLabs (no es playbackRate
+ *   del navegador), rango permitido por ElevenLabs 0.7–1.2.
+ * - "con_tiempos": si es true, se usa el endpoint "with-timestamps" para
+ *   devolver además la alineación carácter por carácter (usada por
+ *   asistencia_psicologica_v2.php para revelar el texto palabra por
+ *   palabra en sincronía real con el audio).
+ */
+$velocidadVoz = (float) ($datos['velocidad'] ?? 1.0);
+$velocidadVoz = max(0.7, min(1.2, $velocidadVoz));
+
+$conTiempos = (bool) ($datos['con_tiempos'] ?? false);
+
+/*
 |--------------------------------------------------------------------------
 | LLAMAR A ELEVENLABS
 |--------------------------------------------------------------------------
 | Flash v2.5 está pensado para conversaciones de baja latencia.
 */
-$url =
-    'https://api.elevenlabs.io/v1/text-to-speech/' .
-    rawurlencode($elevenLabsVoiceId) .
-    '/stream?output_format=mp3_44100_128';
+$url = $conTiempos
+    ? 'https://api.elevenlabs.io/v1/text-to-speech/' . rawurlencode($elevenLabsVoiceId) . '/with-timestamps'
+    : 'https://api.elevenlabs.io/v1/text-to-speech/' . rawurlencode($elevenLabsVoiceId) . '/stream?output_format=mp3_44100_128';
 
 $cuerpo = [
     'text' => $texto,
@@ -165,7 +179,7 @@ $cuerpo = [
         'similarity_boost' => 0.82,
         'style' => 0.05,
         'use_speaker_boost' => true,
-        'speed' => 1.0
+        'speed' => $velocidadVoz
     ]
 ];
 
@@ -179,6 +193,8 @@ curl_setopt_array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 12,
         CURLOPT_TIMEOUT => 45,
+        // Mismo ajuste que AnthropicClient: este WAMP no tiene CA bundle configurado.
+        CURLOPT_SSL_VERIFYPEER => false,
 
         CURLOPT_HTTPHEADER => [
             'Accept: audio/mpeg',
@@ -259,9 +275,36 @@ if ($codigoHttp < 200 || $codigoHttp >= 300) {
 
 /*
 |--------------------------------------------------------------------------
-| DEVOLVER EL AUDIO
+| DEVOLVER LA RESPUESTA
 |--------------------------------------------------------------------------
+| Con "con_tiempos" el propio ElevenLabs ya responde JSON (audio_base64 +
+| alignment), se reenvía tal cual. Sin ese parámetro se mantiene exactamente
+| el comportamiento original: audio binario puro.
 */
+if ($conTiempos) {
+    $jsonElevenLabs = json_decode((string) $respuesta, true);
+
+    if (!is_array($jsonElevenLabs) || empty($jsonElevenLabs['audio_base64'])) {
+        responderError(
+            502,
+            'ElevenLabs no devolvió audio con alineación de tiempos.'
+        );
+    }
+
+    header('Content-Type: application/json; charset=UTF-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
+
+    echo json_encode(
+        [
+            'audio_base64' => $jsonElevenLabs['audio_base64'],
+            'alignment' => $jsonElevenLabs['alignment'] ?? null
+        ],
+        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+    exit;
+}
+
 header(
     'Content-Type: ' .
     (
