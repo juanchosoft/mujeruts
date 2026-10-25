@@ -1125,28 +1125,6 @@ include './admin/include/header.php';
 
                     <button
                         type="button"
-                        class="contact-action-btn action-whatsapp"
-                        id="btnEnviarVideoWhatsapp"
-                        disabled
-                        aria-disabled="true"
-                    >
-                        <i class="fab fa-whatsapp" aria-hidden="true"></i>
-                        <span>Enviar enlace por WhatsApp</span>
-                    </button>
-
-                    <button
-                        type="button"
-                        class="contact-action-btn action-sms"
-                        id="btnEnviarVideoSMS"
-                        disabled
-                        aria-disabled="true"
-                    >
-                        <i class="fas fa-comment-sms" aria-hidden="true"></i>
-                        <span>Enviar enlace por SMS</span>
-                    </button>
-
-                    <button
-                        type="button"
                         class="contact-action-btn action-alert-contact"
                         id="btnAlertarContactoEmergencia"
                         disabled
@@ -1300,6 +1278,7 @@ include './admin/include/header.php';
     let isCreandoVideollamada = false;
     let isEnviandoVideoWhatsapp = false;
     let isEnviandoVideoSMS = false;
+    let puedeEnviarEnlaceVideollamada = false;
     let comunicacionActivaId = null;
     let zadarmaWidgetListo = false;
     let zadarmaInicializando = null;
@@ -1391,24 +1370,10 @@ include './admin/include/header.php';
         }
 
         const btnIniciarVideollamada = document.getElementById('btnIniciarVideollamada');
-        const btnEnviarVideoWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
-        const btnEnviarVideoSMS = document.getElementById('btnEnviarVideoSMS');
         const btnCerrarVideollamada = document.getElementById('btnCerrarVideollamada');
 
         if (btnIniciarVideollamada) {
             btnIniciarVideollamada.addEventListener('click', manejarIniciarVideollamada);
-        }
-
-        if (btnEnviarVideoWhatsapp) {
-            btnEnviarVideoWhatsapp.addEventListener('click', function () {
-                manejarEnviarEnlaceVideollamada('enviar_video_whatsapp');
-            });
-        }
-
-        if (btnEnviarVideoSMS) {
-            btnEnviarVideoSMS.addEventListener('click', function () {
-                manejarEnviarEnlaceVideollamada('enviar_video_sms');
-            });
         }
 
         if (btnCerrarVideollamada) {
@@ -1577,8 +1542,6 @@ include './admin/include/header.php';
         const btnLlamar = document.getElementById('btnLlamarUsuaria');
         const btnWhatsapp = document.getElementById('btnWhatsappUsuaria');
         const btnVideo = document.getElementById('btnIniciarVideollamada');
-        const btnEnviarVideoWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
-        const btnEnviarVideoSMS = document.getElementById('btnEnviarVideoSMS');
         const btnAlertarContacto = document.getElementById('btnAlertarContactoEmergencia');
 
         const telefonoLimpio = limpiarTelefono(data.celular);
@@ -1589,6 +1552,7 @@ include './admin/include/header.php';
         );
         contactoEmergenciaDisponible = tieneContactoEmergencia;
         const telefonoInternacional = obtenerTelefonoInternacional(telefonoLimpio);
+        puedeEnviarEnlaceVideollamada = Boolean(telefonoInternacional);
 
         const mensajeWhatsApp = encodeURIComponent(
             'Hola ' + (data.nombre || '') +
@@ -1606,9 +1570,9 @@ include './admin/include/header.php';
             Boolean(telefonoInternacional)
         );
 
-        configurarBotonAccion(btnVideo, Boolean(telefonoInternacional));
-        configurarBotonAccion(btnEnviarVideoWhatsapp, Boolean(telefonoInternacional));
-        configurarBotonAccion(btnEnviarVideoSMS, Boolean(telefonoInternacional));
+        // La videollamada se puede iniciar siempre; el envío WhatsApp/SMS
+        // depende de que exista celular (se decide en el SweetAlert).
+        configurarBotonAccion(btnVideo, true);
 
         currentVideollamada = null;
         ocultarPanelVideollamada();
@@ -1835,12 +1799,7 @@ include './admin/include/header.php';
     }
 
     function preguntarCanalEnvioVideollamada() {
-        const btnWhatsapp = document.getElementById('btnEnviarVideoWhatsapp');
-        const puedeEnviar = Boolean(
-            btnWhatsapp && !btnWhatsapp.disabled && !btnWhatsapp.classList.contains('is-disabled')
-        );
-
-        if (!puedeEnviar || typeof Swal === 'undefined') {
+        if (!puedeEnviarEnlaceVideollamada || typeof Swal === 'undefined') {
             return Promise.resolve(null);
         }
 
@@ -1892,9 +1851,17 @@ include './admin/include/header.php';
                             'Se inició una videollamada (100ms) para la atención de esta emergencia.'
                         );
 
-                        if (canalElegido) {
-                            manejarEnviarEnlaceVideollamada(canalElegido);
+                        if (!canalElegido) {
+                            return null;
                         }
+
+                        const labelEnvio = canalElegido === 'enviar_video_whatsapp'
+                            ? 'Enviando WhatsApp...'
+                            : 'Enviando SMS...';
+
+                        setBotonVideoCargando(boton, true, 'fas fa-video', 'Iniciar videollamada', labelEnvio);
+
+                        return manejarEnviarEnlaceVideollamada(canalElegido);
                     });
             })
             .catch(function (error) {
@@ -1914,15 +1881,11 @@ include './admin/include/header.php';
 
     function manejarEnviarEnlaceVideollamada(accion) {
         const esWhatsapp = accion === 'enviar_video_whatsapp';
-        const boton = document.getElementById(esWhatsapp ? 'btnEnviarVideoWhatsapp' : 'btnEnviarVideoSMS');
         const yaEnviando = esWhatsapp ? isEnviandoVideoWhatsapp : isEnviandoVideoSMS;
 
-        if (yaEnviando || (boton && (boton.disabled || boton.classList.contains('is-disabled')))) {
-            return;
+        if (yaEnviando || !puedeEnviarEnlaceVideollamada) {
+            return Promise.resolve(null);
         }
-
-        const iconoNormal = esWhatsapp ? 'fab fa-whatsapp' : 'fas fa-comment-sms';
-        const labelNormal = esWhatsapp ? 'Enviar enlace por WhatsApp' : 'Enviar enlace por SMS';
 
         if (esWhatsapp) {
             isEnviandoVideoWhatsapp = true;
@@ -1930,17 +1893,17 @@ include './admin/include/header.php';
             isEnviandoVideoSMS = true;
         }
 
-        setBotonVideoCargando(boton, true, iconoNormal, labelNormal, 'Enviando...');
-
         const telefono = document.getElementById('form_celular_usuaria')?.value || '';
         const alertaId = document.getElementById('alerta_id')?.value || '';
+        const nombreUsuaria = document.getElementById('form_nombre_usuaria')?.value || '';
 
-        obtenerOcrearVideollamada()
+        return obtenerOcrearVideollamada()
             .then(function (videollamada) {
                 const body = new URLSearchParams();
                 body.append('action', accion);
                 body.append('alerta_id', alertaId);
                 body.append('telefono', telefono);
+                body.append('nombre_usuaria', nombreUsuaria);
                 body.append('guest_url', videollamada.guestUrl);
                 body.append('room_name', videollamada.roomName || '');
 
@@ -1960,7 +1923,7 @@ include './admin/include/header.php';
                 agregarRegistroGestion(
                     '[' + obtenerFechaGestionBonita() + '] ' +
                     json.message +
-                    ' Enlace: ' + json.guest_url
+                    ' Enlace: ' + (json.public_url || json.guest_url || '')
                 );
 
                 if (typeof Swal !== 'undefined') {
@@ -1973,6 +1936,8 @@ include './admin/include/header.php';
                 } else {
                     window.alert(json.message);
                 }
+
+                return json;
             })
             .catch(function (error) {
                 console.error('Error al enviar enlace de videollamada:', error);
@@ -1982,6 +1947,8 @@ include './admin/include/header.php';
                 } else {
                     window.alert(error.message || 'No fue posible enviar el enlace de videollamada.');
                 }
+
+                throw error;
             })
             .finally(function () {
                 if (esWhatsapp) {
@@ -1989,8 +1956,6 @@ include './admin/include/header.php';
                 } else {
                     isEnviandoVideoSMS = false;
                 }
-
-                setBotonVideoCargando(boton, false, iconoNormal, labelNormal, 'Enviando...');
             });
     }
 

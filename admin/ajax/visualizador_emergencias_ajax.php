@@ -3,6 +3,20 @@ require_once __DIR__ . '/../include/generic_classes.php';
 require_once __DIR__ . '/../../enviar_whatsapp_emergencia.php';
 require_once __DIR__ . '/../classes/HmsVideoService.php';
 require_once __DIR__ . '/../classes/ZadarmaService.php';
+require_once __DIR__ . '/../classes/ConfigLoader.php';
+require_once __DIR__ . '/../classes/TwilioSmsService.php';
+
+/**
+ * Genera un UUID v4 sin dependencias externas.
+ */
+function generarUuidV4()
+{
+    $bytes = random_bytes(16);
+    $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+    $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
+}
 
 function purgarComunicacionesObsoletas($pdo)
 {
@@ -353,6 +367,7 @@ try {
         $telefono = trim($_POST['telefono'] ?? '');
         $guestUrl = trim($_POST['guest_url'] ?? '');
         $roomName = trim($_POST['room_name'] ?? '');
+        $nombreUsuaria = trim($_POST['nombre_usuaria'] ?? '');
 
         if ($alertaId <= 0 || $guestUrl === '') {
             echo json_encode([
@@ -375,13 +390,13 @@ try {
         $canal = $action === 'enviar_video_whatsapp' ? 'whatsapp' : 'sms';
         $medio = $canal === 'whatsapp' ? 'WhatsApp' : 'SMS';
 
-        // Envío simulado: no se llama a WhatsApp Cloud API ni a un proveedor de
-        // SMS. Se deja la invitación pendiente en tbl_videollamada_invitacion
-        // para que la usuaria la vea en su app (polling en videollamada_banner.php).
-        $stmtUsuarioAlerta = $pdo->prepare('SELECT usuario_id FROM tbl_alerta_policia WHERE id = :id LIMIT 1');
+        $stmtUsuarioAlerta = $pdo->prepare(
+            'SELECT usuario_id, nombre_usuaria FROM tbl_alerta_policia WHERE id = :id LIMIT 1'
+        );
         $stmtUsuarioAlerta->bindValue(':id', $alertaId, PDO::PARAM_INT);
         $stmtUsuarioAlerta->execute();
-        $usuarioIdAlerta = (int) ($stmtUsuarioAlerta->fetchColumn() ?: 0);
+        $alertaRow = $stmtUsuarioAlerta->fetch(PDO::FETCH_ASSOC) ?: [];
+        $usuarioIdAlerta = (int) ($alertaRow['usuario_id'] ?? 0);
 
         if ($usuarioIdAlerta <= 0) {
             echo json_encode([
@@ -391,13 +406,22 @@ try {
             exit;
         }
 
+        if ($nombreUsuaria === '') {
+            $nombreUsuaria = trim((string) ($alertaRow['nombre_usuaria'] ?? ''));
+        }
+
+        $token = generarUuidV4();
+        $config = new ConfigLoader();
+        $publicUrl = $config->construirUrlPublicaVideollamada($token);
+
         $stmtInvitacion = $pdo->prepare(
             "INSERT INTO tbl_videollamada_invitacion
-                (alerta_id, usuario_id, room_name, guest_url, canal, estado, creado_en)
+                (token, alerta_id, usuario_id, room_name, guest_url, canal, estado, creado_en)
              VALUES
-                (:alerta_id, :usuario_id, :room_name, :guest_url, :canal, 'pendiente', NOW())"
+                (:token, :alerta_id, :usuario_id, :room_name, :guest_url, :canal, 'pendiente', NOW())"
         );
         $stmtInvitacion->execute([
+            ':token' => $token,
             ':alerta_id' => $alertaId,
             ':usuario_id' => $usuarioIdAlerta,
             ':room_name' => $roomName,
@@ -405,10 +429,38 @@ try {
             ':canal' => $canal
         ]);
 
+        if ($canal === 'whatsapp') {
+            $resultadoEnvio = enviarWhatsAppPlantillaVideollamada(
+                $telefonoNormalizado,
+                $nombreUsuaria,
+                $publicUrl
+            );
+        } else {
+            $cuerpoSms =
+                'Hola ' . ($nombreUsuaria !== '' ? $nombreUsuaria : '') . '. ' .
+                'Queremos acompañarte. El equipo de MujerUts está disponible para atenderte mediante videollamada. ' .
+                'Cuando estés lista, abre este enlace para conectarte: ' . $publicUrl;
+
+            $twilio = new TwilioSmsService($config);
+            $resultadoEnvio = $twilio->enviarSms($telefonoNormalizado, $cuerpoSms);
+        }
+
+        if (empty($resultadoEnvio['ok'])) {
+            echo json_encode([
+                'ok' => false,
+                'message' => $resultadoEnvio['message'] ?? ('No fue posible enviar el enlace por ' . $medio . '.'),
+                'public_url' => $publicUrl,
+                'token' => $token
+            ]);
+            exit;
+        }
+
         echo json_encode([
             'ok' => true,
-            'message' => 'Se simuló el envío de la plantilla de videollamada por ' . $medio . ' al número ' . $telefonoNormalizado . '. El enlace ya está disponible en la aplicación de la usuaria.',
+            'message' => 'Se envió el enlace de videollamada por ' . $medio . ' al número ' . $telefonoNormalizado . '.',
             'telefono' => $telefonoNormalizado,
+            'public_url' => $publicUrl,
+            'token' => $token,
             'guest_url' => $guestUrl
         ]);
         exit;

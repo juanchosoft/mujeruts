@@ -41,3 +41,6 @@ yarn-error.log*
 # Ignorar archivos de despliegue o configuraciones personales
 *.ftpconfig
 *.htaccess
+docs/
+*.md
+webhook_log.txt

@@ -1203,7 +1203,7 @@ $currentYear     = date('Y');
 
             <section class="services-grid">
 
-                <a href="asistencia_legal.php" class="service-link">
+                <a href="asistencia_legal_v2.php" class="service-link">
                     <article class="service-card">
                         <div>
                             <div class="service-icon">
@@ -1247,7 +1247,7 @@ $currentYear     = date('Y');
                     </article>
                 </a>
 
-                <a href="asistencia_trabajo_social.php" class="service-link">
+                <a href="asistencia_trabajo_social_v2.php" class="service-link">
                     <article class="service-card">
                         <div>
                             <div class="service-icon">
@@ -1269,7 +1269,7 @@ $currentYear     = date('Y');
                     </article>
                 </a>
 
-                <a href="asistente_legal.php" class="service-link">
+                <a href="asistente_legal_v2.php" class="service-link">
                     <article class="service-card">
                         <div>
                             <div class="service-icon">
@@ -1415,5 +1415,6 @@ $currentYear     = date('Y');
         });
     </script>
     <?php include __DIR__ . '/videollamada_banner.php'; ?>
+    <?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

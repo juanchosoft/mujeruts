@@ -3,6 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+try {
+    require_once __DIR__ . '/admin/classes/AnaliticaService.php';
+    AnaliticaService::alCerrarSesionUsuaria();
+} catch (Throwable $e) {
+    error_log('logoutusuaria.php analítica: ' . $e->getMessage());
+}
+
 $_SESSION = [];
 
 if (ini_get('session.use_cookies')) {

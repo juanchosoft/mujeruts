@@ -116,4 +116,147 @@ class ConfigLoader
         $valor = self::$config['chat_psicologico']['ventana_historial_mensajes'] ?? '20';
         return (int) $valor > 0 ? (int) $valor : 20;
     }
+
+    public function getTwilioAccountSid()
+    {
+        return $this->obtener('twilio', 'account_sid');
+    }
+
+    public function getTwilioAuthToken()
+    {
+        return $this->obtener('twilio', 'auth_token');
+    }
+
+    public function getTwilioApiKeySid()
+    {
+        return $this->obtener('twilio', 'api_key_sid', false, '');
+    }
+
+    public function getTwilioApiKeySecret()
+    {
+        return $this->obtener('twilio', 'api_key_secret', false, '');
+    }
+
+    public function getTwilioVerifyServiceSid()
+    {
+        return $this->obtener('twilio', 'verify_service_sid', false, '');
+    }
+
+    public function getTwilioFromNumber()
+    {
+        return $this->obtener('twilio', 'from_number', false, '');
+    }
+
+    public function getTwilioMessagingServiceSid()
+    {
+        return $this->obtener('twilio', 'messaging_service_sid', false, '');
+    }
+
+    public function getVideollamadaPublicBaseUrl()
+    {
+        $base = rtrim((string) $this->obtener(
+            'videollamada',
+            'public_base_url',
+            false,
+            'https://darkenergy.com.co/mujer'
+        ), '/');
+
+        return $base !== '' ? $base : 'https://darkenergy.com.co/mujer';
+    }
+
+    public function getVideollamadaWhatsappTemplateName()
+    {
+        return (string) $this->obtener(
+            'videollamada',
+            'whatsapp_template_name',
+            false,
+            'mujeruts_acompanamiento'
+        );
+    }
+
+    public function getVideollamadaWhatsappTemplateLanguage()
+    {
+        $valor = (string) $this->obtener(
+            'videollamada',
+            'whatsapp_template_language',
+            false,
+            'es'
+        );
+
+        return $valor !== '' ? $valor : 'es';
+    }
+
+    /**
+     * Configuración por asistente migrado (sección [asistente_{slug}]).
+     * Los valores por defecto son los más restrictivos: sin búsqueda web,
+     * sin escalamiento y sin documentos.
+     */
+    public function getConfigAsistente($slug)
+    {
+        if (!in_array($slug, ['trabajo_social', 'juridico', 'lgbtiq'], true)) {
+            throw new Exception('Asistente no reconocido: ' . $slug);
+        }
+
+        $this->cargar();
+        $seccion = self::$config['asistente_' . $slug] ?? [];
+
+        $entero = function ($clave, $default) use ($seccion) {
+            $valor = $seccion[$clave] ?? '';
+            return is_numeric($valor) ? (int) $valor : $default;
+        };
+
+        $booleano = function ($clave, $default) use ($seccion) {
+            if (!array_key_exists($clave, $seccion)) {
+                return $default;
+            }
+            return in_array((string) $seccion[$clave], ['1', 'true', 'si', 'SI'], true);
+        };
+
+        return [
+            'max_tokens' => max(256, $entero('max_tokens', 1024)),
+            'timeout_segundos' => max(10, $entero('timeout_segundos', 60)),
+            'web_search_habilitado' => $booleano('web_search_habilitado', false),
+            'web_search_max_usos' => max(1, $entero('web_search_max_usos', 3)),
+            'escalamiento_alerta' => $booleano('escalamiento_alerta', false),
+            'escalamiento_whatsapp' => $booleano('escalamiento_whatsapp', false),
+            'botones_emergencia' => $booleano('botones_emergencia', true),
+            'documentos_habilitado' => $booleano('documentos_habilitado', false)
+        ];
+    }
+
+    /**
+     * Parámetros de analítica de uso ([analitica]).
+     */
+    public function getConfigAnalitica()
+    {
+        $this->cargar();
+        $s = self::$config['analitica'] ?? [];
+
+        $entero = function ($clave, $default, $min) use ($s) {
+            $v = $s[$clave] ?? '';
+            return is_numeric($v) ? max($min, (int) $v) : $default;
+        };
+
+        $proxies = array_values(array_filter(array_map('trim', explode(',', (string) ($s['proxies_confiables'] ?? '')))));
+
+        return [
+            'geoip_proveedor' => (string) ($s['geoip_proveedor'] ?? 'ipinfo'),
+            'geoip_token' => (string) ($s['geoip_token'] ?? ''),
+            'inactividad_minutos' => $entero('inactividad_minutos', 30, 5),
+            'heartbeat_segundos' => $entero('heartbeat_segundos', 60, 15),
+            'retencion_ip_dias' => $entero('retencion_ip_dias', 90, 1),
+            'retencion_meses' => $entero('retencion_meses', 24, 1),
+            'proxies_confiables' => $proxies
+        ];
+    }
+
+    /**
+     * Arma la URL publica completa: {base}/videollamada.php?id={token}
+     */
+    public function construirUrlPublicaVideollamada($token)
+    {
+        $token = trim((string) $token);
+
+        return $this->getVideollamadaPublicBaseUrl() . '/videollamada.php?id=' . rawurlencode($token);
+    }
 }

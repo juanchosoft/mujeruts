@@ -12,52 +12,83 @@ date_default_timezone_set('America/Bogota');
 require_once __DIR__ . '/admin/classes/DbConection.php';
 
 $usuarioId = (int) ($_SESSION['id'] ?? $_SESSION['usuario_id'] ?? $_SESSION['user_id'] ?? $_SESSION['session_user']['id'] ?? 0);
-$invitacionId = (int) ($_GET['id'] ?? 0);
+$idParam = trim((string) ($_GET['id'] ?? ''));
 
 $invitacion = null;
 $errorCarga = '';
 
-if ($usuarioId <= 0) {
-    $errorCarga = 'Debes iniciar sesión para unirte a la videollamada.';
-} elseif ($invitacionId <= 0) {
+/**
+ * Distingue UUID v4/estilo de un id numerico interno.
+ */
+function esTokenUuid($valor)
+{
+    return (bool) preg_match(
+        '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+        (string) $valor
+    );
+}
+
+function e($valor)
+{
+    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+}
+
+if ($idParam === '') {
     $errorCarga = 'El enlace de la videollamada no es válido.';
+} elseif ($usuarioId <= 0) {
+    // Sin sesion: redirigir a login y volver aqui tras autenticarse.
+    $returnPath = 'videollamada.php?id=' . rawurlencode($idParam);
+    header('Location: login.php?return=' . rawurlencode($returnPath));
+    exit;
 } else {
     try {
         $db = new DbConection();
         $pdo = $db->openConect();
 
-        $stmt = $pdo->prepare(
-            "SELECT id, alerta_id, room_name, guest_url, estado
-             FROM tbl_videollamada_invitacion
-             WHERE id = :id AND usuario_id = :usuario_id
-             LIMIT 1"
-        );
-        $stmt->bindValue(':id', $invitacionId, PDO::PARAM_INT);
-        $stmt->bindValue(':usuario_id', $usuarioId, PDO::PARAM_INT);
+        if (esTokenUuid($idParam)) {
+            $stmt = $pdo->prepare(
+                "SELECT id, alerta_id, room_name, guest_url, estado, usuario_id
+                 FROM tbl_videollamada_invitacion
+                 WHERE token = :token
+                 LIMIT 1"
+            );
+            $stmt->bindValue(':token', $idParam, PDO::PARAM_STR);
+        } else {
+            $stmt = $pdo->prepare(
+                "SELECT id, alerta_id, room_name, guest_url, estado, usuario_id
+                 FROM tbl_videollamada_invitacion
+                 WHERE id = :id
+                 LIMIT 1"
+            );
+            $stmt->bindValue(':id', (int) $idParam, PDO::PARAM_INT);
+        }
+
         $stmt->execute();
         $invitacion = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$invitacion) {
-            $errorCarga = 'Esta videollamada ya no está disponible o no te pertenece.';
+            $errorCarga = 'Esta videollamada ya no está disponible.';
+            $invitacion = null;
+        } elseif ((int) $invitacion['usuario_id'] !== $usuarioId) {
+            // El enlace es valido pero pertenece a otra usuaria.
+            $errorCarga = 'Este enlace de videollamada no corresponde a tu cuenta.';
+            $invitacion = null;
         } elseif ($invitacion['estado'] === 'cerrada') {
             $errorCarga = 'Esta videollamada ya fue cerrada.';
+            $invitacion = null;
         } else {
             $stmtUpdate = $pdo->prepare(
                 "UPDATE tbl_videollamada_invitacion
                  SET estado = 'unida', unido_en = NOW()
                  WHERE id = :id"
             );
-            $stmtUpdate->bindValue(':id', $invitacionId, PDO::PARAM_INT);
+            $stmtUpdate->bindValue(':id', (int) $invitacion['id'], PDO::PARAM_INT);
             $stmtUpdate->execute();
         }
     } catch (Throwable $e) {
         $errorCarga = 'No fue posible cargar la videollamada.';
+        $invitacion = null;
     }
-}
-
-function e($valor)
-{
-    return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
@@ -83,146 +114,125 @@ function e($valor)
             --aliada-gradient: linear-gradient(135deg, #FF4FB8 0%, #D81B9C 48%, #7B1FA2 100%);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html, body {
-            width: 100%;
-            height: 100%;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            padding: 0;
+            height: 100%;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
             background: var(--aliada-bg);
             color: var(--aliada-text);
         }
 
-        .call-shell {
+        .shell {
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
-            height: 100dvh;
-            width: 100%;
+            max-width: 920px;
+            margin: 0 auto;
         }
 
-        .call-header {
+        .topbar {
             flex: 0 0 auto;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
-            padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+            padding: 14px 16px;
+            padding-top: calc(14px + env(safe-area-inset-top));
             background: var(--aliada-gradient);
             color: #fff;
         }
 
-        .call-back {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.18);
+        .topbar h1 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+
+        .topbar a {
             color: #fff;
             text-decoration: none;
-            flex: 0 0 auto;
+            font-size: 0.9rem;
+            opacity: 0.95;
         }
 
-        .call-title {
-            margin: 0;
-            font-size: 15px;
-            font-weight: 800;
-            line-height: 1.3;
-        }
-
-        .call-subtitle {
-            margin: 2px 0 0;
-            font-size: 12px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-
-        .call-frame-wrap {
+        .content {
             flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
             min-height: 0;
-            background: #000;
         }
 
         #videollamadaFrame {
+            flex: 1 1 auto;
             width: 100%;
-            height: 100%;
             border: 0;
-            display: block;
+            min-height: 70dvh;
+            background: #1a0a24;
         }
 
-        .call-error {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 32px 24px calc(24px + env(safe-area-inset-bottom));
+        .error-box {
+            margin: 32px 20px;
+            padding: 22px 18px;
+            border-radius: 16px;
+            background: #fff;
+            border: 1px solid rgba(123, 31, 162, 0.15);
+            box-shadow: 0 10px 30px rgba(43, 18, 55, 0.08);
             text-align: center;
         }
 
-        .call-error i {
-            font-size: 40px;
+        .error-box i {
+            font-size: 2rem;
             color: var(--aliada-fucsia);
+            margin-bottom: 10px;
         }
 
-        .call-error p {
-            margin: 0;
+        .error-box p {
+            margin: 0 0 16px;
             color: var(--aliada-muted);
-            font-size: 14px;
-            line-height: 1.5;
-            max-width: 320px;
+            line-height: 1.45;
         }
 
-        .call-error a {
+        .error-box a.btn {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 22px;
-            border-radius: 14px;
+            padding: 10px 16px;
+            border-radius: 999px;
             background: var(--aliada-gradient);
             color: #fff;
-            font-weight: 800;
-            font-size: 14px;
             text-decoration: none;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div class="call-shell">
-        <header class="call-header">
-            <a href="panel_usuaria.php" class="call-back" aria-label="Volver">
-                <i class="fas fa-arrow-left" aria-hidden="true"></i>
-            </a>
-            <div>
-                <p class="call-title">Videollamada de acompañamiento</p>
-                <p class="call-subtitle">Aliada UTS</p>
-            </div>
+    <div class="shell">
+        <header class="topbar">
+            <h1>Videollamada Aliada UTS</h1>
+            <a href="panel_usuaria.php"><i class="fa-solid fa-arrow-left"></i> Volver</a>
         </header>
 
-        <?php if ($errorCarga !== ''): ?>
-            <div class="call-error">
-                <i class="fas fa-video-slash" aria-hidden="true"></i>
-                <p><?php echo e($errorCarga); ?></p>
-                <a href="panel_usuaria.php">
-                    <i class="fas fa-house" aria-hidden="true"></i>
-                    Volver al inicio
-                </a>
-            </div>
-        <?php else: ?>
-            <div class="call-frame-wrap">
+        <div class="content">
+            <?php if ($errorCarga !== '' || !$invitacion): ?>
+                <div class="error-box">
+                    <i class="fa-solid fa-video-slash" aria-hidden="true"></i>
+                    <p><?php echo e($errorCarga !== '' ? $errorCarga : 'No fue posible abrir la videollamada.'); ?></p>
+                    <a class="btn" href="panel_usuaria.php">Ir al panel</a>
+                </div>
+            <?php else: ?>
                 <iframe
                     id="videollamadaFrame"
-                    title="Videollamada Aliada UTS"
                     src="<?php echo e($invitacion['guest_url']); ?>"
-                    allow="camera *; microphone *; display-capture *; autoplay; fullscreen"
+                    allow="camera *; microphone *; display-capture *; autoplay"
                     allowfullscreen
+                    title="Sala de videollamada"
                 ></iframe>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
+<?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

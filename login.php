@@ -12,6 +12,13 @@ include './admin/classes/Usuario.php';
 include './admin/classes/Departamento.php';
 
 if (isset($_GET['logout'])) {
+    try {
+        require_once __DIR__ . '/admin/classes/AnaliticaService.php';
+        AnaliticaService::alCerrarSesionUsuaria();
+    } catch (Throwable $e) {
+        error_log('login.php analítica: ' . $e->getMessage());
+    }
+
     session_unset();
     session_destroy();
     header('Location: login.php');
@@ -81,11 +88,38 @@ if ($op === 'pms_usrlogin') {
 
             guardarSesionUsuario($usuarioData, $permisos);
 
+            try {
+                require_once __DIR__ . '/admin/classes/AnaliticaService.php';
+                AnaliticaService::alIniciarSesionUsuaria((int) ($usuarioData['id'] ?? 0));
+            } catch (Throwable $e) {
+                error_log('login.php analítica: ' . $e->getMessage());
+            }
+
             $userType = SessionData::getUserType();
             $isSecretario = ($userType === Util::Secretario_Despacho() || $userType === Util::Auxiliar());
             $isAlcalde    = ($userType === Util::Alcalde() || $userType === Util::Auxiliar_Alcalde());
 
-            if ($isAlcalde) {
+            /*
+             * Retorno seguro post-login (enlaces de videollamada por WhatsApp/SMS).
+             * Solo acepta rutas relativas locales, sin esquema ni host externos.
+             */
+            $returnRaw = trim((string) ($rqst['return'] ?? $_GET['return'] ?? ''));
+            $returnPath = '';
+
+            if ($returnRaw !== '') {
+                $candidata = rawurldecode($returnRaw);
+                if (
+                    strpos($candidata, '://') === false &&
+                    strpos($candidata, '//') !== 0 &&
+                    preg_match('/^[a-zA-Z0-9_\\/\\.\\-]+(\\?[a-zA-Z0-9_\\&=\\.\\-%]+)?$/', $candidata)
+                ) {
+                    $returnPath = $candidata;
+                }
+            }
+
+            if ($returnPath !== '') {
+                header('Location: ' . $returnPath);
+            } elseif ($isAlcalde) {
                 header('Location: departamentos.php?pilar=' . Util::getIdentificadorPilarPrincipal());
             } elseif ($isSecretario) {
                 header('Location: panel_usuaria.php');
@@ -2729,6 +2763,12 @@ function errorText($key)
                 <div id="panelLogin" class="form-panel active">
                     <form method="POST" action="login.php" onsubmit="guardarCredenciales();">
                         <input type="hidden" name="op" value="pms_usrlogin">
+                        <?php
+                        $returnLogin = trim((string) ($_GET['return'] ?? $_POST['return'] ?? ''));
+                        if ($returnLogin !== ''):
+                        ?>
+                        <input type="hidden" name="return" value="<?= htmlspecialchars($returnLogin, ENT_QUOTES, 'UTF-8') ?>">
+                        <?php endif; ?>
 
                         <div class="panel-head">
                             <h2>Iniciar sesión</h2>

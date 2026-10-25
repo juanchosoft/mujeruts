@@ -32,12 +32,19 @@ class ChatRiesgoService
      * @param int $mensajeId Id del mensaje del asistente que disparó la evaluación.
      * @param int $nivelRiesgo
      * @param string $resumenAuditoria
+     * @param string|null $prefijoOrigen Nombre del asistente que se antepone a la descripción
+     *                                   (null = Violeta, descripción sin prefijo como siempre).
+     * @param bool $enviarWhatsapp Además del flag global de config.ini.
      * @return array Info de la alerta generada, si aplica.
      */
-    public function procesarNivelRiesgo($conversacionId, $usuarioId, $mensajeId, $nivelRiesgo, $resumenAuditoria)
+    public function procesarNivelRiesgo($conversacionId, $usuarioId, $mensajeId, $nivelRiesgo, $resumenAuditoria, $prefijoOrigen = null, $enviarWhatsapp = true)
     {
         if ($nivelRiesgo < 3) {
             return ['alerta_generada' => false];
+        }
+
+        if ($prefijoOrigen !== null && $prefijoOrigen !== '') {
+            $resumenAuditoria = '[' . $prefijoOrigen . '] ' . $resumenAuditoria;
         }
 
         /*
@@ -111,7 +118,7 @@ class ChatRiesgoService
 
         $resultadoWa = null;
 
-        if ($this->config->isWhatsappRiesgoHabilitado() && $contactoEmergencia !== '') {
+        if ($enviarWhatsapp && $this->config->isWhatsappRiesgoHabilitado() && $contactoEmergencia !== '') {
             $resultadoWa = enviarWhatsAppAlertaRiesgo($contactoEmergencia, $nombreContactoEmergencia, $nombreUsuaria);
 
             $stmtWa = $this->pdo->prepare(

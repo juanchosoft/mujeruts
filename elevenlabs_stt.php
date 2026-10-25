@@ -37,6 +37,10 @@ if (filesize($archivoTemporal) < 500) {
     responderErrorStt(422, 'La grabación es demasiado corta.');
 }
 
+// Safari/iOS graba audio/mp4 (.m4a); el resto de navegadores, audio/webm.
+$extensionAudio = strtolower(pathinfo((string) ($_FILES['audio']['name'] ?? ''), PATHINFO_EXTENSION));
+$nombreAudio = in_array($extensionAudio, ['webm', 'm4a', 'mp4', 'ogg'], true) ? 'grabacion.' . $extensionAudio : 'grabacion.webm';
+
 $config = new ConfigLoader();
 
 try {
@@ -60,7 +64,7 @@ curl_setopt_array($curl, [
     CURLOPT_POSTFIELDS => [
         'model_id' => $modelo,
         'language_code' => 'es',
-        'file' => new CURLFile($archivoTemporal, $_FILES['audio']['type'] ?: 'audio/webm', 'grabacion.webm')
+        'file' => new CURLFile($archivoTemporal, $_FILES['audio']['type'] ?: 'audio/webm', $nombreAudio)
     ]
 ]);
 
@@ -76,8 +80,15 @@ if ($respuesta === false) {
 $json = json_decode((string) $respuesta, true);
 
 if ($httpCode < 200 || $httpCode >= 300) {
-    $detalle = is_array($json) && !empty($json['detail']) ? $json['detail'] : 'ElevenLabs rechazó la transcripción.';
-    responderErrorStt(502, is_string($detalle) ? $detalle : 'ElevenLabs rechazó la transcripción.');
+    $detalle = is_array($json) ? ($json['detail'] ?? null) : null;
+    error_log('elevenlabs_stt.php: HTTP ' . $httpCode . ' ' . json_encode($detalle, JSON_UNESCAPED_UNICODE));
+
+    // Cuenta/cuota/servicio (401, 402, 429, 5xx): no es un problema del audio de la usuaria.
+    if (in_array($httpCode, [401, 402, 429], true) || $httpCode >= 500) {
+        responderErrorStt(503, 'La transcripción de voz no está disponible en este momento. Puedes escribir tu mensaje.');
+    }
+
+    responderErrorStt(502, is_string($detalle) ? $detalle : 'No fue posible transcribir el audio. Intenta grabar de nuevo o escribe tu mensaje.');
 }
 
 $texto = is_array($json) ? trim((string) ($json['text'] ?? '')) : '';

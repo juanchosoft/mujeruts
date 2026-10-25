@@ -2132,5 +2132,6 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <?php include __DIR__ . '/videollamada_banner.php'; ?>
+<?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

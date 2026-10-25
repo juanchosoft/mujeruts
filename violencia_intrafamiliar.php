@@ -2667,5 +2667,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 
+<?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

@@ -588,5 +588,6 @@ foreach ($evidencias as $ev) {
     </a>
 </nav>
 <?php include __DIR__ . '/videollamada_banner.php'; ?>
+<?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

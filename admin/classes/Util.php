@@ -8,6 +8,10 @@ class Util
   public const AUXILIAR_ALCALDE = "Auxiliar_Alcalde";
   public const ADMINISTRADOR = "Administrador";
 
+  // Botón "Hablar con [otra área]" en los chats de IA (api/chat_asistente.php).
+  // Aun activo, nunca se muestra en riesgo nivel 3-4.
+  public const MOSTRAR_BOTON_DERIVACION = false;
+
   // Para enviar la peticion de la DIAN
   public $SYNC_API = true;
 

@@ -283,6 +283,18 @@ function itemActivo($archivoActual, $archivos = []) {
                 </li>
                 <?php endif; ?>
 
+                <?php if (strtolower(trim((string)$rolPanel)) === 'administrador'): ?>
+                <li class="nav-item <?php echo itemActivo($paginaActual, ['analitica.php']); ?>">
+                    <a href="analitica.php" class="nav-link">
+                        <div class="nav-icon-wrap"><i class="fas fa-chart-line"></i></div>
+                        <div class="nav-copy">
+                            <span class="title">Analítica de uso</span>
+                            <span class="desc">Sesiones, asistentes y conexiones</span>
+                        </div>
+                    </a>
+                </li>
+                <?php endif; ?>
+
                 <li class="nav-item violeta-logout-item">
                     <a href="logout.php" class="nav-link">
                         <div class="nav-icon-wrap"><i class="fas fa-power-off"></i></div>

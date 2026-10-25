@@ -1101,6 +1101,81 @@ $saludoBienvenida =
                 transition-duration: .001ms !important;
             }
         }
+
+        /* ===== Retomar conversación anterior ===== */
+        .chat-retomar {
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px dashed rgba(123,31,162,.35);
+            border-radius: 16px;
+            background: rgba(123,31,162,.05);
+            color: #4d4452;
+            font-size: 14px;
+            list-style: none;
+        }
+
+        .chat-retomar-acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chat-retomar-acciones button {
+            min-height: 44px;
+            flex: 1 1 auto;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13.5px;
+            font-weight: 850;
+            cursor: pointer;
+        }
+
+        .chat-retomar-si {
+            border: 0;
+            background: linear-gradient(135deg, #D81B9C, #7B1FA2);
+            color: #FFFFFF;
+        }
+
+        .chat-retomar-no {
+            border: 1px solid rgba(123,31,162,.25);
+            background: #FFFFFF;
+            color: #4A0D60;
+        }
+
+        .chat-retomar-acciones button:focus-visible {
+            outline: 3px solid #D81B9C;
+            outline-offset: 2px;
+        }
+
+        .chat-retomar-acciones button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
+        /* ===== Área táctil mínima de 44 px en todos los tamaños de pantalla ===== */
+        .btn-mobile-top,
+        .btn-enviar-chat,
+        .chat-emergencia-boton,
+        .chat-documento-acciones button,
+        .chat-retomar-acciones button,
+        .chat-derivacion {
+            min-height: 44px;
+        }
+
+        .alma-control-button {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        @media (max-width: 699px) {
+            .alma-control-button {
+                width: 44px;
+                height: 44px;
+            }
+        }
     </style>
 
 </head>
@@ -1652,6 +1727,9 @@ $saludoBienvenida =
 
             btnParlante.addEventListener('click', () => {
                 audioActivo = !audioActivo;
+                if (audioActivo && window.AliadaAnalitica) {
+                    window.AliadaAnalitica.evento('audio_activado');
+                }
                 localStorage.setItem(AUDIO_STORAGE_KEY, audioActivo ? '1' : '0');
                 actualizarBotonParlante();
                 mostrarEstado(audioActivo ? 'Respuestas por audio activadas.' : 'Respuestas por audio desactivadas.');
@@ -1697,6 +1775,7 @@ $saludoBienvenida =
                 esperandoRespuesta = true;
                 botonEnviar.disabled = true;
 
+                quitarOfertaRetomar();
                 agregarBurbuja('usuaria', mensaje);
                 campoTexto.value = '';
                 mostrarIndicadorEscribiendo();
@@ -1949,9 +2028,118 @@ $saludoBienvenida =
                 }
             });
 
+            /*
+            | Retomar la conversación anterior: solo se ofrece (fecha, sin
+            | contenido) y el historial se carga únicamente si la usuaria lo pide.
+            */
+            async function consultarHistorial(cuerpo) {
+                const respuesta = await fetch('api/chat_historial.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken
+                    },
+                    body: JSON.stringify(Object.assign({ asistente: 'psicologico' }, cuerpo))
+                });
+
+                const datos = await respuesta.json().catch(() => ({}));
+
+                if (!respuesta.ok) {
+                    throw new Error(datos.error || 'No fue posible cargar la conversación.');
+                }
+
+                return datos;
+            }
+
+            function quitarOfertaRetomar() {
+                const oferta = document.getElementById('oferta-retomar');
+                if (oferta) {
+                    oferta.remove();
+                }
+            }
+
+            function formatearFecha(fechaSql) {
+                const fecha = new Date(String(fechaSql).replace(' ', 'T'));
+                if (isNaN(fecha.getTime())) {
+                    return '';
+                }
+                return fecha.toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })
+                    + ' a las ' + fecha.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' });
+            }
+
+            async function retomarConversacion(id, boton) {
+                boton.disabled = true;
+
+                try {
+                    const datos = await consultarHistorial({ accion: 'cargar', conversacion_id: id });
+                    quitarOfertaRetomar();
+
+                    (datos.mensajes || []).forEach((mensaje) => {
+                        agregarBurbuja(mensaje.rol === 'usuaria' ? 'usuaria' : 'asistente', mensaje.contenido);
+                    });
+
+                    conversacionId = datos.conversacion_id;
+                    agregarBurbuja('sistema', 'Retomaste tu conversación anterior. Puedes continuar desde aquí.');
+                    campoTexto.focus();
+                } catch (error) {
+                    boton.disabled = false;
+                    mostrarEstado(error.message, true);
+                }
+            }
+
+            async function ofrecerRetomar() {
+                let datos;
+
+                try {
+                    datos = await consultarHistorial({ accion: 'ultima' });
+                } catch (error) {
+                    return;
+                }
+
+                if (!datos.existe || conversacionId !== null || esperandoRespuesta) {
+                    return;
+                }
+
+                const li = document.createElement('li');
+                li.className = 'chat-retomar';
+                li.id = 'oferta-retomar';
+
+                const texto = document.createElement('span');
+                const fecha = formatearFecha(datos.fecha);
+                texto.textContent = ('Tienes una conversación anterior' + (fecha ? ' del ' + fecha : '')).replace(/\.?$/, '.');
+
+                const acciones = document.createElement('div');
+                acciones.className = 'chat-retomar-acciones';
+
+                const btnRetomar = document.createElement('button');
+                btnRetomar.type = 'button';
+                btnRetomar.className = 'chat-retomar-si';
+                const icono = document.createElement('i');
+                icono.className = 'fa-solid fa-clock-rotate-left';
+                icono.setAttribute('aria-hidden', 'true');
+                btnRetomar.append(icono, document.createTextNode(' Retomar conversación anterior'));
+                btnRetomar.addEventListener('click', () => retomarConversacion(datos.conversacion_id, btnRetomar));
+
+                const btnNueva = document.createElement('button');
+                btnNueva.type = 'button';
+                btnNueva.className = 'chat-retomar-no';
+                btnNueva.textContent = 'Empezar una nueva';
+                btnNueva.addEventListener('click', () => {
+                    quitarOfertaRetomar();
+                    campoTexto.focus();
+                });
+
+                acciones.append(btnRetomar, btnNueva);
+                li.append(texto, acciones);
+                listaMensajes.appendChild(li);
+                desplazarAlFinal();
+            }
+
             agregarBurbuja('asistente', saludoBienvenida);
+            ofrecerRetomar();
         });
     </script>
     <?php include __DIR__ . '/videollamada_banner.php'; ?>
+    <?php include __DIR__ . '/analitica_tracker.php'; ?>
 </body>
 </html>

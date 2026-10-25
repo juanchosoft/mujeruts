@@ -178,6 +178,85 @@ function enviarWhatsAppAlertaRiesgo($telefonoContacto, $nombreContacto, $nombreU
 }
 
 /**
+ * Invita a la usuaria a una videollamada con la plantilla Meta
+ * "mujeruts_acompanamiento". Envia el link PUBLICO completo en el boton CTA
+ * (no solo el token): {public_base_url}/videollamada.php?id={uuid}.
+ *
+ * Body {{1}} = nombre de la usuaria.
+ * Button URL = URL publica completa construida desde config.ini.
+ */
+function enviarWhatsAppPlantillaVideollamada($telefonoUsuaria, $nombreUsuaria, $urlPublica)
+{
+    $config = new ConfigLoader();
+    $templateName = $config->getVideollamadaWhatsappTemplateName();
+
+    if ($templateName === '') {
+        return [
+            'ok' => false,
+            'message' => 'Plantilla de videollamada no configurada.'
+        ];
+    }
+
+    $numeroDestino = normalizarTelefonoWhatsApp($telefonoUsuaria);
+
+    if ($numeroDestino === '') {
+        return [
+            'ok' => false,
+            'message' => 'Número de destino vacío.'
+        ];
+    }
+
+    $nombreUsuaria = trim((string) $nombreUsuaria);
+    $urlPublica = trim((string) $urlPublica);
+
+    if ($urlPublica === '') {
+        return [
+            'ok' => false,
+            'message' => 'URL pública de videollamada vacía.'
+        ];
+    }
+
+    $url = 'https://graph.facebook.com/' . WHATSAPP_API_VERSION . '/' . WHATSAPP_PHONE_NUMBER_ID . '/messages';
+
+    $payload = [
+        'messaging_product' => 'whatsapp',
+        'to' => $numeroDestino,
+        'type' => 'template',
+        'template' => [
+            'name' => $templateName,
+            'language' => [
+                'code' => $config->getVideollamadaWhatsappTemplateLanguage(),
+                'policy' => 'deterministic'
+            ],
+            'components' => [
+                [
+                    'type' => 'body',
+                    'parameters' => [
+                        [
+                            'type' => 'text',
+                            'text' => $nombreUsuaria !== '' ? $nombreUsuaria : 'usuaria'
+                        ]
+                    ]
+                ],
+                [
+                    'type' => 'button',
+                    'sub_type' => 'url',
+                    'index' => '0',
+                    'parameters' => [
+                        [
+                            'type' => 'text',
+                            'text' => $urlPublica
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ];
+
+    return ejecutarRequestWhatsApp($url, $payload, $numeroDestino);
+}
+
+/**
  * Ejecuta el POST a Graph API.
  */
 function ejecutarRequestWhatsApp($url, array $payload, $numeroDestino)
